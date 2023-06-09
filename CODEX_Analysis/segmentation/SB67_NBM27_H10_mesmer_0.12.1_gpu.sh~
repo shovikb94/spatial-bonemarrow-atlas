@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH --job-name=SB67_Mesmer
+#SBATCH -c 1
+#SBATCH --mem-per-cpu=700G
+#SBATCH -t 7-0:0:0
+#SBATCH -o slurm_out/slurm-%j.out
+
+module load singularity
+singularity exec --bind /mnt -H /mnt/isilon/tan_lab_imaging/FUSION/NBM27_H10_CITRATE_REIMAGE/H10/Scan1/ --cleanenv /mnt/isilon/tan_lab/bandyopads/mesmer_2022/deepcell-tf_0.12.1-gpu.sif python -m SB67_H10_NBM27_Mesmer.py
+
+
+
+
