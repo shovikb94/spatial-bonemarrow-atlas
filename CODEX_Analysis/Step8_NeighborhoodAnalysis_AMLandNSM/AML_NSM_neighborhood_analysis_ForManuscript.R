@@ -5,6 +5,14 @@ library(Seurat)
 library(ggplot2)
 library(tidyr)
 
+# read in objects
+AML1_183_mapped <- readRDS("objects/AML1_183_mapped.RDS")
+AML1_382_mapped <- readRDS("objects/AML1_382_mapped.RDS")
+AML2_191_mapped <- readRDS("objects/AML2_191_mapped.RDS")
+AML3_1329_mapped <- readRDS("objects/AML3_1329_mapped.RDS")
+AML3_1443_mapped <- readRDS("objects/AML3_1443_mapped.RDS")
+
+
 # Integrate AML and NSM samples
 AML1_183_mapped@meta.data$Sample_Group <- "AML"
 AML1_382_mapped@meta.data$Sample_Group<- "AML"
@@ -13,11 +21,23 @@ AML3_1329_mapped@meta.data$Sample_Group <- "AML"
 AML3_1443_mapped@meta.data$Sample_Group <- "AML"
 NSM.combined@meta.data$Sample_Group <- "NSM"
 
+AML1_183_mapped@meta.data$Sample_Timepoint <- "Dx"
+AML1_382_mapped@meta.data$Sample_Timepoint<- "Post-Tx"
+AML2_191_mapped@meta.data$Sample_Timepoint <- "Dx"
+AML3_1329_mapped@meta.data$Sample_Timepoint <- "Dx"
+AML3_1443_mapped@meta.data$Sample_Timepoint <- "Post-Tx"
+NSM.combined@meta.data$Sample_Timepoint <- "NSM"
+
 All.combined <- merge(x=NSM.combined, , y = c(AML1_183_mapped, AML1_382_mapped, AML2_191_mapped, AML3_1329_mapped, AML3_1443_mapped), add.cell.ids = c("NSM.combined", "AML1_183", "AML1_382", "AML2_191", "AML3_1329", "AML_1443"))
 
 # change cluster anno l2 to blasts
 Blast_ids <- colnames(subset(All.combined, subset = Adjusted_Class == "NPM1_Mutant")) # Blast Rename
 All.combined$classified_cluster_anno_l2[Blast_ids] <- "NPM1 Mutant Blast"
+
+# Test for markers enriched pre and post therapy, GATA1 text reference ----
+All.combined <- SetIdent(All.combined, value = "Adjusted_Class")
+FindMarkers(All.combined, subset.ident = "NPM1_Mutant", group.by = "Sample_Timepoint", ident.2 = "Dx", ident.1 = "Post-Tx")
+# GATA1 increase - p.adj = 0.000123, log2FC = 0.378
 
 # remove artifacts
 All.combined <- subset(All.combined, subset = classified_cluster_anno_l2 != "Artifact" & classified_cluster_anno_l2 != "CD44+ Undetermined" & classified_cluster_anno_l2 != "Undetermined" & classified_cluster_anno_l2 != "Autofluorescent")
@@ -60,6 +80,10 @@ df_frequency_df <- df_frequency_df %>%
 df_frequency_df$rel_freq <-  df_frequency_df$Frequency / df_frequency_df$total
 df_frequency_df %>% group_by(Sample) %>% summarise(sum(rel_freq)) # just confirm it adds up to one
 
+
+
+
+
 # Figure 7G - Neighborhood Membership Frequency by Sample Type and Timepoint ----
 neighborhood_order <- c(0,2,3,4,5,6,7,8,9,10,11,13, 1,12,14)
 df_frequency_df$neighborhood10 <- factor(df_frequency_df$neighborhood10, levels = neighborhood_order)
@@ -91,4 +115,9 @@ ha = HeatmapAnnotation(cell_counts = anno_barplot(x = neighborhood_counts,
 htmp <- Heatmap(neighborhood_mat, name = "mat", rect_gp = gpar(col = "black", lwd = 2), 
                 column_title = "Bone Marrow Neighborhood Enrichment",right_annotation =  ha, column_names_gp = grid::gpar(fontsize = 14), row_title_gp = grid::gpar(fontsize = 13))
 draw(htmp, heatmap_legend_side="left")
+
+# Supplemental Figure S7E AML Bone Proximity Boxplot----
+ranks <- read_csv("~/Documents/NBM_Microenvironment/NBM_Atlas_CODEX_Samples/Non-Cell Microenvironment Analysis/Most_Uptodate/combined_v3_aml_neighbourhood.csv")
+ranks %>% dplyr::filter(ranks$structure == "bone") %>% ggplot(aes(x = as.factor(neighbourhood+1), y = normalized_rank, fill = structure))  + geom_boxplot() + scale_fill_manual(values = c("#FAA59E","#CADCEB","#C2E7B9","#E8DBEC","#FED194","#ffe2db")) + scale_linetype_manual(values=c("solid", "longdash")) + theme_minimal()
+
 

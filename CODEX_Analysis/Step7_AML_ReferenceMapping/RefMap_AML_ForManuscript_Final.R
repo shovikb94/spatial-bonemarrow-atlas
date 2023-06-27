@@ -7,9 +7,9 @@ library(ggrepel)
 library(ggplot2)
 library(RColorBrewer)
 library(tidyverse)
-library(rstatix)
-library(ggpubr)
 library(cowplot)
+library(ggpubr)
+library(rstatix)
 
 
 immune.filtered <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Annotate_Cells_Step3/objects/immune.filtered_FINAL.RDS")
@@ -34,7 +34,7 @@ immune.combined@meta.data["cluster_anno_coarse"] <- immune.combined@active.ident
 immune.filtered <- RunUMAP(immune.filtered, dims = 1:30, reduction = "pca", reduction.name = "UMAP_dim30", return.model = TRUE)
 immune.combined <- RunUMAP(immune.combined, dims = 1:30, reduction = "pca", reduction.name = "UMAP_dim30", return.model = TRUE)
 
-saveRDS(immune.combined, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Annotate_Cells_Step3/objects/immune.combined_final_040523.RDS")
+# saveRDS(immune.combined, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Annotate_Cells_Step3/objects/immune.combined_final_040523.RDS")
 
 immune.combined <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Annotate_Cells_Step3/objects/immune.combined_final_040523.RDS")
 
@@ -99,7 +99,7 @@ anchors <- FindTransferAnchors(
   reference.reduction = "pca",
   dims = 1:30
 )
-saveRDS(anchors, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/AML_anchors_final_380removed_FINAL_040423.RDS")
+# saveRDS(anchors, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/AML_anchors_final_380removed_FINAL_040423.RDS")
 
 AML.combined <- MapQuery(
   anchorset = anchors,
@@ -247,10 +247,25 @@ table(AML3_1329_mapped@meta.data$Adjusted_Class, AML3_1329_mapped@meta.data$clas
 AML3_1443_mapped@meta.data <- AML3_1443_mapped@meta.data %>% mutate(Adjusted_Class = if_else(Class == "NPM1_Mutant" & classified_cluster_anno_l2 %in% c("Early Myeloid Progenitor", "Erythroblast", "Erythroid", "GATA1neg_Mks", "GATA1pos_Mks", "GMP", "GMP/Myeloblast", "HSPC", "Intermediate Myeloid", "Macrophages", "MEP/Early Erythroblast", "Monocytes", "Non-Classical Monocyte", "pDC", "SPINK2+ HSPC"), true = "NPM1_Mutant",false =  "WT", missing = "missing"))
 table(AML3_1443_mapped@meta.data$Adjusted_Class, AML3_1443_mapped@meta.data$classified_cluster_anno_l2)
 
+# save objects
+#saveRDS(AML1_183_mapped, "objects/AML1_183_mapped.RDS")
+#saveRDS(AML1_382_mapped, "objects/AML1_382_mapped.RDS")
+#saveRDS(AML2_191_mapped, "objects/AML2_191_mapped.RDS")
+#saveRDS(AML3_1329_mapped, "objects/AML3_1329_mapped.RDS")
+#saveRDS(AML3_1443_mapped, "objects/AML3_1443_mapped.RDS")
+
+# read objects
+AML1_183_mapped <- readRDS("objects/AML1_183_mapped.RDS")
+AML1_382_mapped <- readRDS("objects/AML1_382_mapped.RDS")
+AML2_191_mapped <- readRDS("objects/AML2_191_mapped.RDS")
+AML3_1329_mapped<- readRDS("objects/AML3_1329_mapped.RDS")
+AML3_1443_mapped <- readRDS("objects/AML3_1443_mapped.RDS")
+
+
+
 # combined objects 
 All.combined_mapped <- merge(AML1_183_mapped, c(AML1_382_mapped, AML2_191_mapped, AML3_1329_mapped, AML3_1443_mapped, NSM.combined))
 AML.combined_mapped <- merge(AML1_183_mapped, c(AML1_382_mapped, AML2_191_mapped, AML3_1329_mapped, AML3_1443_mapped))
-
 
 # change cluster anno l2 to blasts
 Blast_ids <- colnames(subset(All.combined_mapped, subset = Adjusted_Class == "NPM1_Mutant")) # Blast Rename
@@ -259,9 +274,9 @@ Blast_ids <- colnames(subset(AML.combined_mapped, subset = Adjusted_Class == "NP
 AML.combined_mapped$classified_cluster_anno_l2[Blast_ids] <- "NPM1 Mutant Blast"
 
 # save objects
-saveRDS(All.combined_mapped, file = "objects/All.combined_mapped_blastslabeled_040423.RDS")
-saveRDS(AML.combined_mapped, file = "objects/AML.combined_mapped_blastslabeled_040423.RDS")
-saveRDS(All.combined, file = "objects/All.combined_mapped_unlabeled_040423.RDS")
+## saveRDS(All.combined_mapped, file = "objects/All.combined_mapped_blastslabeled_040423.RDS")
+## saveRDS(AML.combined_mapped, file = "objects/AML.combined_mapped_blastslabeled_040423.RDS")
+## saveRDS(All.combined, file = "objects/All.combined_mapped_unlabeled_040423.RDS")
 
 # Related to Figure 7C
 FeatureScatter(AML3_1329_mapped, feature1 = "x.coord", feature2 = "y.coord", group.by = "classified_cluster_anno_l2", cols = cal2_cols, pt.size = 0.5)
@@ -289,7 +304,7 @@ p1 <- All_ct_freqs_toplot %>% ggplot(aes(x = classified_cluster_anno_l2, y = mea
   geom_errorbar(aes(ymin=mean_freq-sd, ymax=mean_freq+sd), width=.2,
                 position=position_dodge(.9)) + scale_fill_manual(values = c("#89CFF0", "#FA8072")) + theme_minimal()
 
-ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/Figure7D_MSC_SubTypeFrequency.pdf", height = 5, width = 7.5)
+# ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/Figure7D_MSC_SubTypeFrequency.pdf", height = 5, width = 7.5)
 
 
 aml_sample_names <- c("AML1_Dx", "AML1_MRD", "AML2_Dx", "AML3_Dx", "AML3_MRD")
@@ -305,14 +320,12 @@ t.test(subset(All_ct_freqs, subset = Sample_Group == "AML" & (classified_cluster
 # p = 0.03737
 
 
-
 # Analyze HIF1a levels Supplemental Figure S7F ----
 cal2_cols_npm1 <- c(cal2_cols, "#FA8072")
 names(cal2_cols_npm1) <- c(cell_order, "NPM1 Mutant Blast")
-mutant_markers <- FindMarkers(All.combined, subset.ident = "NPM1_Mutant", group.by = "Adjusted_Class", ident.1 = "NPM1_Mutant", ident.2 = "WT")
 
 p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("Mature Myeloid", "Intermediate Myeloid", "Early Myeloid Progenitor","GMP/Myeloblast","GMP", "NPM1 Mutant Blast")), features = c("codex_HIF1A"), slot = "data", pt.size = 0 , cols = cal2_cols, group.by = "classified_cluster_anno_l2", sort = TRUE) + NoLegend()
-ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_HIF1A_VlnPlot.pdf", height = 5, width = 7.5)
+#ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_HIF1A_VlnPlot.pdf", height = 5, width = 7.5)
 
 # BCL2 levels Supplemental Figure S7G ----
 p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), split.by = "Sample_Name", cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"), features = c("codex_BCL2"), slot = "data", pt.size = 0, group.by = "classified_cluster_anno_l2", sort = TRUE) 
@@ -327,6 +340,6 @@ ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandy
 All.combined_mapped@meta.data$x.coord_rev <- -(All.combined_mapped$x.coord)
 All.combined_mapped@meta.data$y.coord_rev <- -(All.combined_mapped$y.coord)
 All.combined_mapped@meta.data <- mutate(All.combined_mapped@meta.data, Region = "reg001")
-write.csv(x = All.combined_mapped@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/NSM_AML_combined_annotated_ForNeighborhoods_040523.csv")
+# write.csv(x = All.combined_mapped@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/NSM_AML_combined_annotated_ForNeighborhoods_040523.csv")
 
 

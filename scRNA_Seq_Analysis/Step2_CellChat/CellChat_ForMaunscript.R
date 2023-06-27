@@ -1,3 +1,5 @@
+# This script is for running CellChat on the scRNA-Seq object from Step1 for cellular communication analysis presented in Figure 3. 
+
 library(CellChat)
 library(patchwork)
 library(NMF)

@@ -290,6 +290,50 @@ combined@meta.data %>% dplyr::group_by(cluster_anno_coarse)  %>% summarise(media
 gtsave(supp_fig_1D, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure1/Supp_Fig_1D.pdf")
 
 # Supplemental Figure 1D Inflammation ----- 
+#Run AUCell
+combined.small <- subset(combined, downsample = 300) # note the results may be subtly different between runs because of downsampling step
+fmeta <- data.frame(symbol = rownames(combined.small)) 
+rownames(fmeta) <- fmeta$symbol
+eset_combined.small <- new("ExpressionSet",
+                           assayData = assayDataNew("environment", exprs=combined.small@assays$RNA@counts, 
+                                                    norm_exprs = combined.small@assays$RNA@data),
+                           phenoData =  new("AnnotatedDataFrame", data = combined.small@meta.data),
+                           featureData = new("AnnotatedDataFrame", data = fmeta))
+exprMatrix <- exprs(eset_combined.small)
+geneSets <- getGmt("~/Downloads/h.all.v2022.1.Hs.symbols.gmt")
+geneSets <- subsetGeneSets(geneSets, rownames(exprMatrix)) 
+cbind(nGenes(geneSets))
+geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets)))
+# add random noise
+# Random
+set.seed(321)
+extraGeneSets <- c(
+  GeneSet(sample(rownames(exprMatrix), 50), setName="Random (50g)"),
+  GeneSet(sample(rownames(exprMatrix), 500), setName="Random (500g)"))
+
+countsPerGene <- apply(exprMatrix, 1, function(x) sum(x>0))
+# Housekeeping-like
+extraGeneSets <- c(extraGeneSets,
+                   GeneSet(sample(names(countsPerGene)[which(countsPerGene>quantile(countsPerGene, probs=.95))], 100), setName="HK-like (100g)"))
+
+geneSets <- GeneSetCollection(c(geneSets,extraGeneSets))
+names(geneSets)
+# Start to build the cell rankings
+cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=1, plotStats=FALSE)
+#save(cells_rankings, file="AUCell/cells_rankings.RData")
+
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
+#save(cells_AUC, file="AUCell/AUCecells_AUC.RData")
+
+set.seed(123)
+par(mfrow=c(3,3)) 
+#cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=FALSE, assign=TRUE)
+#save(cells_assignment, file="AUCell/cellassignment_AUC.RData")
+
+auc_test <- as.data.frame(t(cells_AUC@assays@data$AUC))
+combined_AUC <- AddMetaData(combined.small, auc_test)
+
+
 FeaturePlot(object = combined_AUC, features = c("HALLMARK_INFLAMMATORY_RESPONSE"), coord.fixed = TRUE) & NoAxes()
 
 
@@ -724,50 +768,6 @@ ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure3/panels/
 
 # Figure 5F - AUCell Hypoxia Score Analysis ----
 myeloid_development <- c("HSC", "MPP","Cycling HSPC", "GMP", "Early Myeloid Progenitor", "Late Myeloid", "Neutrophil")
-#Run AUCell
-combined.small <- subset(combined, downsample = 300) # note the results may be subtly different between runs because of downsampling step
-fmeta <- data.frame(symbol = rownames(combined.small)) 
-rownames(fmeta) <- fmeta$symbol
-eset_combined.small <- new("ExpressionSet",
-                           assayData = assayDataNew("environment", exprs=combined.small@assays$RNA@counts, 
-                                                    norm_exprs = combined.small@assays$RNA@data),
-                           phenoData =  new("AnnotatedDataFrame", data = combined.small@meta.data),
-                           featureData = new("AnnotatedDataFrame", data = fmeta))
-exprMatrix <- exprs(eset_combined.small)
-geneSets <- getGmt("~/Downloads/h.all.v2022.1.Hs.symbols.gmt")
-geneSets <- subsetGeneSets(geneSets, rownames(exprMatrix)) 
-cbind(nGenes(geneSets))
-geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets)))
-# add random noise
-# Random
-set.seed(321)
-extraGeneSets <- c(
-  GeneSet(sample(rownames(exprMatrix), 50), setName="Random (50g)"),
-  GeneSet(sample(rownames(exprMatrix), 500), setName="Random (500g)"))
-
-countsPerGene <- apply(exprMatrix, 1, function(x) sum(x>0))
-# Housekeeping-like
-extraGeneSets <- c(extraGeneSets,
-                   GeneSet(sample(names(countsPerGene)[which(countsPerGene>quantile(countsPerGene, probs=.95))], 100), setName="HK-like (100g)"))
-
-geneSets <- GeneSetCollection(c(geneSets,extraGeneSets))
-names(geneSets)
-
-# Start to build the cell rankings
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=1, plotStats=FALSE)
-save(cells_rankings, file="AUCell/cells_rankings.RData")
-
-cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
-save(cells_AUC, file="AUCell/AUCecells_AUC.RData")
-
-set.seed(123)
-par(mfrow=c(3,3)) 
-cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=FALSE, assign=TRUE)
-save(cells_assignment, file="AUCell/cellassignment_AUC.RData")
-
-auc_test <- as.data.frame(t(cells_AUC@assays@data$AUC))
-combined_AUC <- AddMetaData(combined.small, auc_test)
-
 FeaturePlot(combined_AUC, reduction = "UMAP_dim30", features = "HALLMARK_HYPOXIA", coord.fixed = TRUE, max.cutoff = 'q99') + 
   scale_color_gradientn(colours = rev(brewer.pal(n = 11, name = "RdBu"))) + NoAxes()
 
