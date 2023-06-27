@@ -28,28 +28,32 @@ AML3_1329_mapped@meta.data$Sample_Timepoint <- "Dx"
 AML3_1443_mapped@meta.data$Sample_Timepoint <- "Post-Tx"
 NSM.combined@meta.data$Sample_Timepoint <- "NSM"
 
-All.combined <- merge(x=NSM.combined, , y = c(AML1_183_mapped, AML1_382_mapped, AML2_191_mapped, AML3_1329_mapped, AML3_1443_mapped), add.cell.ids = c("NSM.combined", "AML1_183", "AML1_382", "AML2_191", "AML3_1329", "AML_1443"))
+# export for neighborhood analysis ----
 
-# change cluster anno l2 to blasts
-Blast_ids <- colnames(subset(All.combined, subset = Adjusted_Class == "NPM1_Mutant")) # Blast Rename
-All.combined$classified_cluster_anno_l2[Blast_ids] <- "NPM1 Mutant Blast"
+## combined objects 
+All.combined_mapped <- merge(NSM.combined,c(AML1_183_mapped, AML1_382_mapped, AML2_191_mapped, AML3_1329_mapped, AML3_1443_mapped))
+
+## change cluster anno l2 to blasts
+Blast_ids <- colnames(subset(All.combined_mapped, subset = Adjusted_Class == "NPM1_Mutant")) # Blast Rename
+All.combined_mapped$classified_cluster_anno_l2[Blast_ids] <- "NPM1 Mutant Blast"
+
+## remove artifacts
+All.combined_mapped <- subset(All.combined_mapped, subset = classified_cluster_anno_l2 != "Artifact" & classified_cluster_anno_l2 != "CD44+ Undetermined" & classified_cluster_anno_l2 != "Undetermined" & classified_cluster_anno_l2 != "Autofluorescent")
+
+
+## Add metadata columns and write annotated CSV for neighborhood analysis
+All.combined_mapped@meta.data$x.coord_rev <- -(All.combined_mapped$x.coord)
+All.combined_mapped@meta.data$y.coord_rev <- -(All.combined_mapped$y.coord)
+All.combined_mapped@meta.data <- mutate(All.combined_mapped@meta.data, Region = "reg001")
+write.csv(x = All.combined_mapped@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/NSM_AML_combined_annotated_ForNeighborhoods_062723_test.csv")
+
 
 # Test for markers enriched pre and post therapy, GATA1 text reference ----
-All.combined <- SetIdent(All.combined, value = "Adjusted_Class")
-FindMarkers(All.combined, subset.ident = "NPM1_Mutant", group.by = "Sample_Timepoint", ident.2 = "Dx", ident.1 = "Post-Tx")
+All.combined_mapped <- SetIdent(All.combined_mapped, value = "Adjusted_Class")
+FindMarkers(All.combined_mapped, subset.ident = "NPM1_Mutant", group.by = "Sample_Timepoint", ident.2 = "Dx", ident.1 = "Post-Tx")
 # GATA1 increase - p.adj = 0.000123, log2FC = 0.378
 
-# remove artifacts
-All.combined <- subset(All.combined, subset = classified_cluster_anno_l2 != "Artifact" & classified_cluster_anno_l2 != "CD44+ Undetermined" & classified_cluster_anno_l2 != "Undetermined" & classified_cluster_anno_l2 != "Autofluorescent")
-
-# export for nb analysis
-# Add metadata columns and write annotated CSV for neighborhood analysis
-All.combined@meta.data$x.coord_rev <- -(All.combined$x.coord)
-All.combined@meta.data$y.coord_rev <- -(All.combined$y.coord)
-All.combined@meta.data <- mutate(All.combined@meta.data, Region = "reg001")
-write.csv(x = All.combined@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/NSM_AML_combined_annotated_ForNeighborhoods.csv")
-
-All.combined@meta.data <- All.combined@meta.data %>% mutate(Timepoint = ifelse(All.combined@meta.data$orig.ident %in% c("SB67_NBM46_AML1_382_CODEX_Mesmer", "SB67_NBM54_AML3_1443_CODEX_Mesmer"), yes = "Post-Therapy", no = "Diagnosis"))
+All.combined_mapped@meta.data <- All.combined_mapped@meta.data %>% mutate(Timepoint = ifelse(All.combined_mapped@meta.data$orig.ident %in% c("SB67_NBM46_AML1_382_CODEX_Mesmer", "SB67_NBM54_AML3_1443_CODEX_Mesmer"), yes = "Post-Therapy", no = "Diagnosis"))
 
 ### Use Jupyter notebook to perform neighborhood analysis and return here ###
 

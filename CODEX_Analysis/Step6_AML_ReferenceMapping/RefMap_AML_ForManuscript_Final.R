@@ -335,11 +335,3 @@ ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandy
 p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), group.by = "Sample_Name", features = c("codex_OXPHOS"), slot = "data", pt.size = 0, cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"),  sort = FALSE) 
 ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_ComplexIV_VlnPlot.pdf", height = 5, width = 7.5)
 
-# export for nb analysis
-# Add metadata columns and write annotated CSV for neighborhood analysis
-All.combined_mapped@meta.data$x.coord_rev <- -(All.combined_mapped$x.coord)
-All.combined_mapped@meta.data$y.coord_rev <- -(All.combined_mapped$y.coord)
-All.combined_mapped@meta.data <- mutate(All.combined_mapped@meta.data, Region = "reg001")
-# write.csv(x = All.combined_mapped@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/NSM_AML_combined_annotated_ForNeighborhoods_040523.csv")
-
-
