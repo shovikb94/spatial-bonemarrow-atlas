@@ -124,4 +124,11 @@ draw(htmp, heatmap_legend_side="left")
 ranks <- read_csv("~/Documents/NBM_Microenvironment/NBM_Atlas_CODEX_Samples/Non-Cell Microenvironment Analysis/Most_Uptodate/combined_v3_aml_neighbourhood.csv")
 ranks %>% dplyr::filter(ranks$structure == "bone") %>% ggplot(aes(x = as.factor(neighbourhood+1), y = normalized_rank, fill = structure))  + geom_boxplot() + scale_fill_manual(values = c("#FAA59E","#CADCEB","#C2E7B9","#E8DBEC","#FED194","#ffe2db")) + scale_linetype_manual(values=c("solid", "longdash")) + theme_minimal()
 
+# t-tests for supplemental Figure 7 and Figure S7 ----
+data_dx <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Dx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
+data_mrd <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Post-Tx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
+
+t.test(data_mrd$GATA1,data_dx$GATA1)
+t.test(data_mrd$BCL2,data_dx$BCL2)
+t.test(data_mrd$OXPHOS,data_dx$OXPHOS)
 
