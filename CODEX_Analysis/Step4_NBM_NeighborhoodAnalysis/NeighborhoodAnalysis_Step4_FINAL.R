@@ -127,18 +127,19 @@ names(nbs_cols) <- nbs_names
 emp_df <- as.data.frame(t(as.data.frame(GetAssayData(subset(immune.filtered, cluster_anno_l2 == "Early Myeloid Progenitor"),slot = 'data'))))
 emp_df$Neighborhoods <- subset(immune.filtered, cluster_anno_l2 == "Early Myeloid Progenitor")$Neighborhoods_Annotated
 emp_df$Neighborhoods <- as.factor(emp_df$Neighborhoods)
-emp_df %>% ggplot(aes(x=fct_reorder(Neighborhoods, desc(HIF1A)), y = HIF1A, fill = Neighborhoods)) + geom_boxplot(width=0.5, outlier.shape = NA) + scale_fill_manual(values = nbs_cols) + coord_flip() + theme_classic() + 
-  scale_y_continuous(limits = quantile(emp_df$HIF1A, c(0.1, 0.95))) + xlab("Neighborhood") + ylab("HIF1a CLR Normalized") + ggtitle("Early Myeloid Progenitor HIF1a Expression")
+p1 <- emp_df %>% ggplot(aes(x=fct_reorder(Neighborhoods, desc(HIF1A)), y = HIF1A, fill = Neighborhoods)) + geom_boxplot(width=0.5, outlier.shape = NA) + scale_fill_manual(values = nbs_cols)  + theme_classic() + 
+  scale_y_continuous(limits = quantile(emp_df$HIF1A, c(0.1, 0.95))) + xlab("Neighborhood") + ylab("HIF1a CLR Normalized") + ggtitle("Early Myeloid Progenitor HIF1a Expression") & RotatedAxis()
 
+ggsave(p1, device = "pdf", height = 3, width = 5, filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/Figures/HIF1a_expression_short.pdf")
 
 # t.test for each emp neighborhood against all cells used in Figure 5E
 test <- c()
 c <- c()
 d <- c()
 for (i in levels(emp_df$Neighborhoods)) {
-  a <- subset(emp_df, Neighborhoods == {i})$CD141
+  a <- subset(emp_df, Neighborhoods == {i})$HIF1A
   d <- append(x = d, values = i)
-  b <- subset(emp_df, Neighborhoods != {i})$CD141
+  b <- subset(emp_df, Neighborhoods != {i})$HIF1A
   test <- t.test(a,b, alternative = "less")
   c <- append(x = c, values = test$p.value)
 }
@@ -151,5 +152,60 @@ c # contains adjusted p-values for all neighborhoods
 cal2_cols <- c("#CF9FFF", "#E7C7DC", "#CAA7DD", "#A8A2D2", "#B6D0E2", "#2874A6", "#5599C8", "#AEC6CF", "#6495ED", "#64b8ed", "#96C5D7", "#40B5AD", "#8FCACA", "#CCE2CB", "#63BA97", "#7DB954", "#64864A", "#019477", "#953553", "#A1045A", "#a15891", "#9C58A1", "#79127F", "#BF40BF", "#FFD580", "#FFC8A2", "#FDDA0D", "#F3B0C3", "#FFBF00", "#ff9d5c", "#DD3F4E", "#FF69B4")
 names(cal2_cols) <- c("HSC", "SPINK2+ HSPC", "HSPC", "GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Mature Myeloid", "Monocytes", "Non-Classical Monocyte", "Macrophages", "pDC", "CLP", "Immature_B_Cell", "B-Cells", "CD4+ T-Cell", "CD8+ T-Cell", "Plasma Cells", "MEP/Early Erythroblast", "CD34+ CD61+", "Erythroblast", "Erythroid", "GATA1neg_Mks", "GATA1pos_Mks", "Adipo-MSC", "THY1+ MSC", "Adipocyte", "Endosteal", "AEC", "SEC", "VSMC", "Schwann Cells")
 VlnPlot(immune.filtered, slot = 'data', cols = cal2_cols, group.by = "cluster_anno_l2",features = "HIF1A", pt.size = 0, sort=TRUE) + NoLegend()
+
+# Supplemental Figure X - Per Sample Nb Composition ----
+
+neighborhoods <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/output/neighborhood.csv")
+neighborhood_mat <- as.matrix(fc[2:33])
+
+neighborhood_names_zeroindex_unique <- c('0' = "Mature Myeloid",
+                                  "1" = "Erythroid/Myeloid_1",
+                                  "2" = "PC/Arteriolar",
+                                  "3" = "Erythroid_1",
+                                  "4" = "Arteriolar",
+                                  "5" = "Erythroid_2",
+                                  "6" = "Lymphoid",
+                                  "7" = "Erythroid/Myeloid/Lymphoid_1",
+                                  "8" = "Early Myeloid / Endosteal",
+                                  "9" = "Myeloid/Lymphoid",
+                                  "10" = "Intermediate Myeloid",
+                                  "11" = "Erythroid/Myeloid/Lymphoid_2",
+                                  "12" = "Erythroid/Myeloid_2",
+                                  "13" = "Early Myeloid / Arteriolar",
+                                  "14" = "Peri-Arterolar Lymphoid")
+
+neighborhood_names_zeroindex <- c('0' = "Mature Myeloid",
+                                  "1" = "Erythroid/Myeloid",
+                                  "2" = "PC/Arteriolar",
+                                  "3" = "Erythroid",
+                                  "4" = "Arteriolar",
+                                  "5" = "Erythroid",
+                                  "6" = "Lymphoid",
+                                  "7" = "Erythroid/Myeloid/Lymphoid",
+                                  "8" = "Early Myeloid",
+                                  "9" = "Myeloid/Lymphoid",
+                                  "10" = "Intermediate Myeloid",
+                                  "11" = "Erythroid/Myeloid/Lymphoid",
+                                  "12" = "Erythroid/Myeloid",
+                                  "13" = "Early Myeloid",
+                                  "14" = "Peri-Arterolar Lymphoid")
+
+neighborhoods$neighborhood_named <- neighborhood_names_zeroindex[as.character(neighborhoods$neighborhood10)]
+
+nbs_names <- c("Mature Myeloid", "Erythroid/Myeloid", "PC/Arteriolar", "Erythroid", "Arteriolar", "Erythroid", "Lymphoid", "Erythroid/Myeloid/Lymphoid", "Early Myeloid", "Myeloid/Lymphoid", "Intermediate Myeloid", "Erythroid/Myeloid/Lymphoid", "Erythroid/Myeloid", "Early Myeloid", "Peri-Arterolar Lymphoid")
+nbs_cols <- c("#A8D37F", "#51C8EB", "#FF00FF", "#FBED24", "#FF0000", "#FBED24", "#89919C", "#BD7CB5", "#4B409A", "#FFA500", "#A15A26", "#BD7CB5", "#51C8EB", "#4B409A", "#FF007F")
+names(nbs_cols) <- nbs_names
+
+# add age information and simplify sample names 
+neighborhoods$Sample_Name <- gsub(".*_(H[0-9]+)_.*", "\\1", neighborhoods$orig.ident)
+age <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Revisions/Age Analysis/additional_metadata_CODEX.csv")
+colnames(age)[1] <- "Sample_Name"
+neighborhoods <- neighborhoods %>% left_join(age, by = "Sample_Name")
+
+p1 <- ggplot(neighborhoods, aes(fill=neighborhood_named, x=reorder(as.factor(Sample_Name), ~(Age)))) + 
+  geom_bar(position="fill", stat="count") + theme_minimal() + RotatedAxis() +
+  ylab("Percentage of Total MSCs") + xlab("Sample") + scale_fill_manual(values=nbs_cols, limits=force) # limits=force drops unused levels from the legend
+
+ggsave(p1, device = "pdf", width = 5, height = 5, filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/Figures/PerSample_NeighborhoodComposition.pdf")
 
 

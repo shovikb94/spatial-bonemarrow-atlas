@@ -1,0 +1,39 @@
+﻿scRNA_cla2,CODEX_closest_cla2
+HSC,SPINK2+ HSPC 
+HSC,HSC
+MPP,HSPC
+Cycling HSPC,HSPC
+MEP,MEP/Early Erythroblast
+Erythroblast,Erythroblast
+Late Erythroid,Erythroid
+RBC,Erythroid
+Megakaryocyte,GATA1pos_Mks
+Megakaryocyte,GATA1neg_Mks
+GMP,GMP/Myeloblast
+GMP,GMP
+Early Myeloid Progenitor,Early Myeloid Progenitor
+Late Myeloid,Intermediate Myeloid
+Neutrophil,Mature Myeloid
+Monocyte,Monocytes
+Monocyte,Non_Classical Monocyte
+Macrophages,Macrophages
+Ba/Eo/Ma,Autofluorescent
+Cycling DCs,pDC
+pDC,pDC
+CLP,CLP
+Pre-Pro B,Immature_B_Cell
+Pro-B,Immature_B_Cell
+Pre-B,Immature_B_Cell
+Mature B,B_Cells
+Plasma Cell,Plasma Cells
+CD4+ T-Cell,CD4+ T_Cell
+CD8+ T-Cell,CD8+ T_Cell
+AEC,AEC
+SEC,SEC
+VSMC,VSMC
+THY1+ MSC,THY1+ MSC
+Adipo-MSC,MSC
+OsteoFibro-MSC,NA
+Osteo-MSC,Endosteal
+Osteoblast,Endosteal
+Fibro-MSC,NA

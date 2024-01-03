@@ -145,13 +145,15 @@ NSM.combined <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_COD
 # AdipoMSC_ids <- colnames(subset(All.combined_mapped, subset = classified_cluster_anno_l2 == "MSC")) 
 # All.combined_mapped$classified_cluster_anno_l2[AdipoMSC_ids] <- "Adipo-MSC"
 
+
 # Rename orig.idents 
-levels(as.factor(NSM.combined$orig.ident))
-orig.ident_annotations <- c("NSM_1996","NSM_1720", "NSM_1086")
-NSM.combined <- SetIdent(NSM.combined, value = "orig.ident")
-names(orig.ident_annotations) <- levels(as.factor(NSM.combined$orig.ident))
-NSM.combined <- RenameIdents(NSM.combined, orig.ident_annotations)
-NSM.combined@meta.data["Sample_Name"] <- NSM.combined@active.ident 
+AML.combined$orig.ident <- factor(AML.combined$orig.ident, levels = c("SB67_NBM51_AML1_183_CODEX_Mesmer", "SB67_NBM46_AML1_382_CODEX_Mesmer", "SB67_NBM44_AML2_191_CODEX_Mesmer", "SB67_NBM52_AML3_1329_CODEX_Mesmer","SB67_NBM54_AML3_1443_CODEX_Mesmer"))
+levels(AML.combined$orig.ident)
+orig.ident_annotations <- c("AML1_Dx","AML1_MRD", "AML2_Dx","AML3_Dx", "AML3_MRD")
+AML.combined <- SetIdent(AML.combined, value = "orig.ident")
+names(orig.ident_annotations) <- levels(as.factor(AML.combined$orig.ident))
+AML.combined <- RenameIdents(AML.combined, orig.ident_annotations)
+AML.combined@meta.data["Sample_Name"] <- AML.combined@active.ident 
 
 # Figure 7B Cell Composition of AML and NSM ----
 ## set coarse colors
@@ -165,8 +167,17 @@ names(cal2_cols) <- c("HSC", "SPINK2+ HSPC", "HSPC", "GMP", "GMP/Myeloblast", "E
 cell_order <- c("HSC", "SPINK2+ HSPC", "HSPC", "GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Mature Myeloid", "Monocytes", "Non-Classical Monocyte", "Macrophages", "pDC", "CLP", "Immature_B_Cell", "B-Cells", "CD4+ T-Cell", "CD8+ T-Cell", "Plasma Cells", "MEP/Early Erythroblast", "CD34+ CD61+", "Erythroblast", "Erythroid", "GATA1neg_Mks", "GATA1pos_Mks", "Adipo-MSC", "THY1+ MSC", "Adipocyte", "Endosteal", "AEC", "SEC", "VSMC", "Schwann Cells")
 
 
-
 ## Create dataframe for plotting
+# Rename orig.idents 
+levels(as.factor(NSM.combined$orig.ident))
+orig.ident_annotations <- c("NSM_1996","NSM_1720", "NSM_1086")
+NSM.combined <- SetIdent(NSM.combined, value = "orig.ident")
+names(orig.ident_annotations) <- levels(as.factor(NSM.combined$orig.ident))
+NSM.combined <- RenameIdents(NSM.combined, orig.ident_annotations)
+NSM.combined@meta.data["Sample_Name"] <- NSM.combined@active.ident 
+
+
+
 NSM.combined$Sample_Name <- factor(NSM.combined$Sample_Name,  levels = c("NSM_1086", "NSM_1720", "NSM_1996"))
 cell_counts_l2_AML <- as.data.frame(table(AML.combined$classified_cluster_anno_l2,AML.combined$Sample_Name))
 cell_counts_l2_NSM <- as.data.frame(table(NSM.combined$classified_cluster_anno_l2,NSM.combined$Sample_Name))
@@ -180,6 +191,17 @@ cell_counts_l2 %>% arrange(Var1) %>% dplyr::filter(Var1 != "Artifact" & Var1 != 
   labs(x='Sample') + 
   labs(y='Cell Type') + scale_fill_manual(values=na.omit(cal2_cols)) + theme(axis.text = element_text(size=12)) + ggtitle("NSM/AML Predicted Cell Frequency") + RotatedAxis()
 
+# plot just myeloid subtypes 
+p1 <- cell_counts_l2 %>% arrange(Var1) %>% dplyr::filter(Var1 %in% myeloid_cell_types) %>% ggplot(aes(x=Var2,y=Freq, fill=droplevels(Var1))) +
+  geom_bar(position="fill",stat="identity", width = 0.9) + 
+  theme_bw() + 
+  labs(x='Sample') + 
+  labs(y='Cell Type') + scale_fill_manual(values=na.omit(cal2_cols)) + theme(axis.text = element_text(size=12)) + ggtitle("NSM/AML Predicted Cell Frequency") + RotatedAxis()
+
+ggsave(p1, filename = "Figures/Figure7B_AML_MyeloidSubtypes.pdf", device = "pdf", width = 5, height = 5)
+
+
+
 ## Create combined object containing NSM and AML samples
 AML1_183_mapped <- subset(AML.combined, subset = orig.ident == "SB67_NBM51_AML1_183_CODEX_Mesmer")
 AML1_382_mapped <- subset(AML.combined, subset = orig.ident == "SB67_NBM46_AML1_382_CODEX_Mesmer")
@@ -189,13 +211,13 @@ AML3_1443_mapped <- subset(AML.combined, subset = orig.ident == "SB67_NBM54_AML3
 All.combined <- merge(AML1_183_mapped, c(AML1_382_mapped, AML2_191_mapped, AML3_1329_mapped, AML3_1443_mapped, NSM.combined))
 
 ## Perform proportion test to confirm significance of myeloid populations enriched in AML samples vs. NSM ----
-myeloid_cell_types <- c("GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Monocyte","Non-Classical Monocyte", "pDC", "Macrophage") # make sure there are non npm1 mutant blast annotation since we are just checking the unsupervised labeling here, also removed mature myeloid since AML should be immature myeloid or monocytic/dendritic lineage
+myeloid_cell_types <- c("GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Monocytes","Non-Classical Monocyte", "pDC", "Macrophage") # make sure there are non npm1 mutant blast annotation since we are just checking the unsupervised labeling here, also removed mature myeloid since AML should be immature myeloid or monocytic/dendritic lineage
 All.combined@meta.data <- mutate(All.combined@meta.data, IsMyeloid = classified_cluster_anno_l2 %in% myeloid_cell_types)
 cell_counts_l2 <- mutate(cell_counts_l2, IsAML = Var2 %in% orig.ident_annotations)
 table(subset(All.combined, subset = Sample_Name %in% c("AML1_Dx","AML2_Dx", "AML3_Dx"))$IsMyeloid)
 table(subset(All.combined, subset = Sample_Name %in% c("NSM_1086", "NSM_1720", "NSM_1996"))$IsMyeloid)
-prop.test(x= c(38108, 32945), n = c((71701+38108), (132355+32945)))
-# results - p <2.2e-16 , prop1 = 0.321 , prop2 = 0.199
+prop.test(x= c(52274, 38138), n = c((5735+52274), (127162+38138)))
+# results - p <2.2e-16 , prop1 = 0.901 , prop2 = 0.231
 
 # Map mutant cells ----
 ## Load classified spatially joined dataframes to map mutant cell IDs
@@ -278,60 +300,5 @@ AML.combined_mapped$classified_cluster_anno_l2[Blast_ids] <- "NPM1 Mutant Blast"
 ## saveRDS(AML.combined_mapped, file = "objects/AML.combined_mapped_blastslabeled_040423.RDS")
 ## saveRDS(All.combined, file = "objects/All.combined_mapped_unlabeled_040423.RDS")
 
-# Related to Figure 7C
-FeatureScatter(AML3_1329_mapped, feature1 = "x.coord", feature2 = "y.coord", group.by = "classified_cluster_anno_l2", cols = cal2_cols, pt.size = 0.5)
-FeatureScatter(subset(All.combined, Sample_Name == "NSM_1720") , feature1 = "x.coord", feature2 = "y.coord", group.by = "classified_cluster_anno_l2", cols = cal2_cols, pt.size = 0.1)
 
-# Figure 7D ----
-# make a bar plot just showing the MSC frequencies and perform t.test
-All_ct_freqs <- All.combined_mapped@meta.data %>%
-  group_by(Sample_Name, classified_cluster_anno_l2) %>%
-  summarise(n = n()) %>%
-  mutate(freq = n / sum(n)) 
-
-All_ct_freqs <- All_ct_freqs %>% 
-  mutate(Sample_Group = substr(Sample_Name, start = 1, stop = 3))
-
-All_ct_freqs_toplot <- All_ct_freqs %>% group_by(Sample_Group, classified_cluster_anno_l2) %>% summarise(freq=freq, mean_freq = mean(freq), sd = sd(freq)) 
-All_ct_freqs_toplot <- All_ct_freqs_toplot %>% dplyr::filter(classified_cluster_anno_l2 == "MSC" | classified_cluster_anno_l2 == "THY1+ MSC")
-All_ct_freqs_toplot %>% ggplot(aes(x = classified_cluster_anno_l2, y = freq, fill = Sample_Group)) + 
-  geom_boxplot()
-
-All_ct_freqs_toplot$Sample_Group <- factor(All_ct_freqs_toplot$Sample_Group, levels = c("NSM", "AML"))
-  
-p1 <- All_ct_freqs_toplot %>% ggplot(aes(x = classified_cluster_anno_l2, y = mean_freq, fill = Sample_Group)) + 
-  geom_bar(stat="identity", position = "dodge", color = 'black') +
-  geom_errorbar(aes(ymin=mean_freq-sd, ymax=mean_freq+sd), width=.2,
-                position=position_dodge(.9)) + scale_fill_manual(values = c("#89CFF0", "#FA8072")) + theme_minimal()
-
-# ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/Figure7D_MSC_SubTypeFrequency.pdf", height = 5, width = 7.5)
-
-
-aml_sample_names <- c("AML1_Dx", "AML1_MRD", "AML2_Dx", "AML3_Dx", "AML3_MRD")
-NSM_sample_names <- c("NSM_1086", "NSM_1720", "NSM_1996")
-
-aml_sample_names <- c("AML1_Dx", "AML1_MRD", "AML2_Dx", "AML3_Dx", "AML3_MRD")
-NSM_sample_names <- c("NSM_1086", "NSM_1720", "NSM_1996")
-
-## t-test for seeing whether the frequency distribution is different between AML and NSM for both Adipo and THY1+ MSCs ----
-t.test(subset(All_ct_freqs, subset = Sample_Group == "AML" & (classified_cluster_anno_l2 == "MSC"))$freq, subset(All_ct_freqs, subset = Sample_Group == "NSM" & (classified_cluster_anno_l2 == "MSC"))$freq)
-# p=0.004654
-t.test(subset(All_ct_freqs, subset = Sample_Group == "AML" & (classified_cluster_anno_l2 == "THY1+ MSC"))$freq, subset(All_ct_freqs, subset = Sample_Group == "NSM" & (classified_cluster_anno_l2 == "THY1+ MSC"))$freq)
-# p = 0.03737
-
-
-# Analyze HIF1a levels Supplemental Figure S7F ----
-cal2_cols_npm1 <- c(cal2_cols, "#FA8072")
-names(cal2_cols_npm1) <- c(cell_order, "NPM1 Mutant Blast")
-
-p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("Mature Myeloid", "Intermediate Myeloid", "Early Myeloid Progenitor","GMP/Myeloblast","GMP", "NPM1 Mutant Blast")), features = c("codex_HIF1A"), slot = "data", pt.size = 0 , cols = cal2_cols, group.by = "classified_cluster_anno_l2", sort = TRUE) + NoLegend()
-#ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_HIF1A_VlnPlot.pdf", height = 5, width = 7.5)
-
-# BCL2 levels Supplemental Figure S7G ----
-p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), split.by = "Sample_Name", cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"), features = c("codex_BCL2"), slot = "data", pt.size = 0, group.by = "classified_cluster_anno_l2", sort = TRUE) 
-ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_BCL2_VlnPlot.pdf", height = 5, width = 7.5)
-
-# Complex IV levels Supplemental Figure S7H ----
-p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), group.by = "Sample_Name", features = c("codex_OXPHOS"), slot = "data", pt.size = 0, cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"),  sort = FALSE) 
-ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_ComplexIV_VlnPlot.pdf", height = 5, width = 7.5)
-
+# Proceed to Step 7 
