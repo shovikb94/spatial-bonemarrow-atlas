@@ -47,7 +47,7 @@ metap_sumz <- ranks %>% group_by(structure_1, structure_2) %>% summarise(pvec = 
 metap_wide_sumz <- dcast(metap_sumz, structure_2 ~ structure_1, value.var = "pvec")
 metap_wide_sumz_corplot <- metap_wide_sumz[,-1]
 rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$structure_2
-
+metap_wide_sumz_corplot
 
 # Figure 6C complex heatmap for neighborhoods ----
 
@@ -105,7 +105,7 @@ metap_sumz <- ranks %>% group_by(celltype, structure) %>% summarise(pvec = stouf
 metap_wide_sumz <- dcast(metap_sumz, celltype ~ structure, value.var = "pvec")
 metap_wide_sumz_corplot <- metap_wide_sumz[,-1]
 rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$celltype
-
+metap_wide_sumz_corplot
 ## can use this to_plot table to check significane of any to_from comparison 
 
 # Supplemental Figure 6B chord diagram ----
@@ -175,3 +175,4 @@ metap_wide_sumz_corplot <- metap_wide_sumz[,-1]
 rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$neighbourhood
 
 plot_grid(p1,p2, ncol = 1)
+
