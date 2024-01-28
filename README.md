@@ -65,3 +65,7 @@ Integrated_Analysis/Integrate_CellChat_and_NeighborhoodAnalysis_ForManuscript_v2
 Figure S5F-G
 Integrated_Analysis/RNA_Protein_Correlation_Median_ForManuscript.R
 
+**Ligand-Receptor CODEX Analysis**
+Figure S8C
+CODEX_Analysis/Step9_LR_Analysis/LR_Distance_Analysis_ForManuscript.R
+
