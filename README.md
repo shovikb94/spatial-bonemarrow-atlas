@@ -54,3 +54,10 @@ Figure 7C-D, 7F-G, S10E, S10G-J - CODEX_Analysis/Step7_NeighborhoodAnalysis_AMLa
 Figure S11A-B - CODEX_Analysis/Step5_NSM_ReferenceMapping/NSM_NBM_Correlation.R
 CODEX_Analysis/Step5_NSM_ReferenceMapping/NSM_Only_NeighborhoodAnalysis-.ipynb
 
+**Integrated Analysis**
+Figure 5F
+Integrated_Analysis/Integrate_CellChat_and_NeighborhoodAnalysis_ForManuscript_v2.R
+
+Figure S5F-G
+Integrated_Analysis/RNA_Protein_Correlation_Median_ForManuscript.R
+
