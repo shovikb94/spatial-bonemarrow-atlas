@@ -30,7 +30,6 @@ Figure 4C-4D - CODEX_Analysis/Step3_AnnotateCells/NBM_CODEX_Atlas_Combined_Step3
 **CODEX MSC Subset Manual Annotation and Distance Analysis**
 Figure S5E - CODEX_Analysis/Step1_CreateSeuratObjs/Fibro_Osteo_MSC_Create_Seurat.R
 Figure 4E - CODEX_Analysis/Step8_Distance_Analysis/MSC_Distance_Analysis_VlnPlots.R
-CODEX_Analysis/Step8_Distance_Analysis/Osteo_Fibro_MSC_Get_Bone_Overlap.ipynb
 
 **CODEX NBM Neighborhood Analysis**
 Figure 5A, 5D, S7D-E - CODEX_Analysis/Step4_NBM_NeighborhoodAnalysis/NeighborhoodAnalysis_Step4_FINAL.R
