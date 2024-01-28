@@ -1,16 +1,12 @@
 # script to measure scRNA and CODEX correlation in the NBM manuscript
-
 library(Seurat)
 library(ggplot2)
 library(dplyr)
 library(readr)
 library(tidyr)
 library(tibble)
-
-
+library(ggrepel)
 # load and preprocess objects ----
-
-
 ## read in scRNA-Seq object 
 combined <- readRDS("/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Seurat/combined_corrected_NKTremoved.RDS")
 combined <- subset(combined, subset = cluster_anno_l2 != "RNAlo MSC") # remove RNAlo MSC
@@ -18,30 +14,19 @@ combined$cluster_anno_l2 <- droplevels(combined$cluster_anno_l2) # drop empty fa
 table(combined$cluster_anno_l2)
 
 ## read in CODEX object 
-CODEX <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Annotate_Cells_Step3/objects/immune.filtered_FINAL.RDS")
-
+CODEX <- readRDS("/mnt/isilon/tan_lab/sussmanj/CODEX/Seurat_Analysis/Bone_Marrow/Immune_Combined_Added_MSC_CD56.RDS")
 
 ## read integration table
-
-integration_table <- read_csv("/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Revisions_Integration_BatchCorrection/CODEX_scRNA_labels_integration_harmonized.csv")
-
-
+integration_table <- read_csv("/mnt/isilon/tan_lab/sussmanj/CODEX/Seurat_Analysis/Bone_Marrow/CODEX_scRNA_labels_integration_harmonized.csv")
 
 # read protein rna conversion table
 conversion_table <- read_csv("/mnt/isilon/tan_lab/sussmanj/Temp/CODEX_RNA_Integration/Protein_Conversions.csv")
 
-# try to perform the conversion ----
-
-library(Seurat)
-library(dplyr)
-library(ggplot2)
 
 # Assuming 'combined' and 'codex_seurat' are your Seurat objects for scRNA-Seq data and CODEX data, respectively
 # Also assuming 'conversion_table' and 'integration_table' are loaded as data frames
-
 # Create a named vector for marker name conversion between scRNA-seq and CODEX assays
 names_conversion <- setNames(conversion_table$`Protein name`, conversion_table$`RNA name`)
-
 
 # Aggregate RNA expression data by scRNA-Seq cell type
 rna_agg <- AverageExpression(combined, slot = 'data', group.by = 'cluster_anno_l2', assays = "RNA", features = c(names(names_conversion)), return.seurat = FALSE)$RNA
@@ -66,7 +51,6 @@ median_expression <- df %>%
   group_by(gene, cluster) %>%
   summarize(median_expr = median(expression, na.rm = TRUE))
 
-# View the results
 print(median_expression)
 
 wide_format <- median_expression %>%
@@ -75,7 +59,6 @@ rna_rownames <- wide_format$gene
 wide_format <- wide_format[,-1]
 rownames(wide_format) <- rna_rownames
 
-# View the results
 print(wide_format)
 rna_agg <- as.matrix(wide_format)
 # Use conversion table to align RNA marker names with CODEX protein names
@@ -84,10 +67,10 @@ rownames(rna_agg) <- ifelse(rownames(rna_agg) %in% names(names_conversion),
                             rownames(rna_agg))
 
 # Aggregate CODEX protein expression data by CODEX cell type
-protein_agg <- AverageExpression(CODEX, slot = 'data', assays = "CODEX", group.by = "cluster_anno_l2", return.seurat = FALSE)$CODEX
+protein_agg <- AverageExpression(CODEX, slot = 'data', assays = "CODEX2", group.by = "cluster_anno_l2", return.seurat = FALSE)$CODEX
 
 # Extracting the data slot which contains normalized data
-data_matrix <- CODEX@assays$CODEX@data
+data_matrix <- CODEX@assays$CODEX2$data
 
 # Extract cluster information from metadata
 CODEX <- SetIdent(CODEX, value = "cluster_anno_l2")
@@ -118,8 +101,6 @@ rownames(wide_format) <- codex_rownames
 print(wide_format)
 protein_agg <- as.matrix(wide_format)
 
-# correlations 
-
 # match the RNA agg and protein agg tables
 rna_agg <- as.data.frame(rna_agg)
 rna_agg$Marker_Name <- rownames(rna_agg)
@@ -137,27 +118,13 @@ codex_to_harmonized <- setNames(integration_table$Harmonized_Labels_CODEX, integ
 scrna_label_translation <- setNames(integration_table$Harmonized_Labels_scRNA, integration_table$scRNA_cla2)
 codex_label_translation <- setNames(integration_table$Harmonized_Labels_CODEX, integration_table$CODEX_cla2)
 
-
 # Rename the columns in the rna_agg matrix
 rna_agg_renamed <- rna_agg
 colnames(rna_agg_renamed) <- scrna_to_harmonized[colnames(rna_agg_renamed)]
-# Check for any NAs and handle them
-#na_cols_rna <- is.na(colnames(rna_agg_renamed))
-#if (any(na_cols_rna)) {
-#  warning("NA values found in rna_agg column names, replacing with original names.")
-#  colnames(rna_agg)[na_cols_rna] <- names(na_cols_rna)[na_cols_rna]
-#}
 
 # Rename the columns in the protein_agg matrix
 protein_agg_renamed <- protein_agg
 colnames(protein_agg_renamed) <- codex_to_harmonized[colnames(protein_agg_renamed)]
-# Check for any NAs and handle them
-#na_cols_protein <- is.na(colnames(protein_agg_renamed))
-#if (any(na_cols_protein)) {
-#  warning("NA values found in protein_agg column names, replacing with original names.")
-#  colnames(protein_agg)[na_cols_protein] <- names(na_cols_protein)[na_cols_protein]
-#}
-
 
 # This function will average columns in a dataframe with the same name
 average_duplicate_columns <- function(df) {
@@ -197,29 +164,15 @@ print(head(protein_agg_renamed))
 rna_agg_renamed$Marker_Names <- rownames(rna_agg_renamed)
 protein_agg_renamed$Marker_Names <- rownames(protein_agg_renamed)
 
-# Move "Marker_Names" to the first column
 rna_agg_renamed <- rna_agg_renamed[, c(ncol(rna_agg_renamed), 1:(ncol(rna_agg_renamed)-1))]
 protein_agg_renamed <- protein_agg_renamed[, c(ncol(protein_agg_renamed), 1:(ncol(protein_agg_renamed)-1))]
 
-library(ggplot2)
-library(dplyr)
-
-# Assuming rna_agg_renamed and protein_agg_renamed have been created and have 'Marker_Names' as the first column
-
-
-library(Seurat)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-
-# Assuming rna_agg_renamed and protein_agg_renamed have been created with 'Marker_Names' as the first column
-
 # Extract common cell types
-common_colnames <- intersect(colnames(rna_agg_renamed)[-1], colnames(protein_agg_renamed)[-1])
+common_colnames <- intersect(colnames(rna_agg_renamed)[-1], colnames(protein_agg_renamed)[-2])
 
+#Remove marker names column 
 rna_agg_renamed <- rna_agg_renamed[,-1]
-protein_agg_renamed <- protein_agg_renamed[,-1]
-
+protein_agg_renamed <- protein_agg_renamed[,-2]
 
 # Pivot the data frames longer
 rna_long <- pivot_longer(
@@ -244,130 +197,6 @@ filtered_combined_long <- combined_long %>%
     !is.na(RNA_Expression) & RNA_Expression != "No Match" &
       !is.na(CODEX_Expression) & CODEX_Expression != "No Match"
   )
-
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(gridExtra)
-
-# Assuming filtered_combined_long is already defined and contains the columns:
-# 'Marker_Names', 'Cell_Type', 'RNA_Expression', and 'CODEX_Expression'
-
-# Create a PDF file to save the plots
-pdf("/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Revisions_Integration_BatchCorrection/median_celltype_correlation_plots.pdf", width = 11, height = 8.5)
-
-# Loop through each unique cell type and create a plot
-for(cell_type in unique(filtered_combined_long$Cell_Type)) {
-  
-  # Subset the data for the current cell type
-  current_data <- filtered_combined_long %>% 
-    filter(Cell_Type == cell_type) %>%
-    na.omit() # Remove rows with NA values
-  
-  # Calculate correlation coefficient and linear model
-  correlation_test <- cor.test(current_data$RNA_Expression, current_data$CODEX_Expression)
-  lm_model <- lm(CODEX_Expression ~ RNA_Expression, data = current_data)
-  
-  # Plot the data and add a regression line
-  p <- ggplot(current_data, aes(x = RNA_Expression, y = CODEX_Expression)) +
-    geom_point() +
-    geom_smooth(method = "lm", color = "blue") +
-    geom_text(aes(label = Marker_Names), hjust = 1.5, vjust = 1.5, check_overlap = TRUE) +
-    ggtitle(paste("Cell Type:", cell_type, "\nCorrelation R:", round(correlation_test$estimate, 3))) +
-    xlab("RNA Expression (normalized)") +
-    ylab("Protein Expression (CLR)") +
-    theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5))
-  
-  # Print the plot to the PDF
-  print(p)
-}
-
-# Close the PDF device
-dev.off()
-
-
-# repeat for scaled
-
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(scales)
-library(purrr)
-
-# Assuming filtered_combined_long is already defined and contains the columns:
-# 'Marker_Names', 'Cell_Type', 'RNA_Expression', and 'CODEX_Expression'
-
-# Function to scale data to a -1 to 1 range
-scale_to_range <- function(x) {
-  (2 * (x - min(x)) / (max(x) - min(x))) - 1
-}
-
-# Apply scaling within each cell type for each assay
-filtered_combined_long <- filtered_combined_long %>%
-  group_by(Cell_Type) %>%
-  mutate(
-    RNA_Expression_Scaled = scale_to_range(RNA_Expression),
-    CODEX_Expression_Scaled = scale_to_range(CODEX_Expression)
-  ) %>%
-  ungroup()
-
-
-filtered_combined_long %>% group_by(Cell_Type) %>% summarise((range(RNA_Expression_Scaled)))
-filtered_combined_long %>% group_by(Cell_Type) %>% summarise(range(CODEX_Expression_Scaled))
-
-# Open PDF to save plots
-pdf("/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Revisions_Integration_BatchCorrection/scaled_median_celltype_correlation_plots.pdf")
-
-# Loop through each unique cell type and create a plot
-for(cell_type in unique(filtered_combined_long$Cell_Type)) {
-  
-  # Subset the data for the current cell type
-  current_data <- filtered_combined_long %>% 
-    filter(Cell_Type == cell_type) %>%
-    na.omit() # Remove rows with NA values
-  
-  # Calculate correlation coefficient and linear model
-  correlation_test <- cor.test(current_data$RNA_Expression_Scaled, current_data$CODEX_Expression_Scaled)
-  lm_model <- lm(CODEX_Expression_Scaled ~ RNA_Expression_Scaled, data = current_data)
-  
-  # Plot the data and add a regression line
-  p <- ggplot(current_data, aes(x = RNA_Expression_Scaled, y = CODEX_Expression_Scaled)) +
-    geom_point() +
-    geom_smooth(method = "lm", color = "blue") +
-    geom_text(aes(label = Marker_Names), hjust = 1.5, vjust = 1.5, check_overlap = TRUE) +
-    ggtitle(paste("Cell Type:", cell_type, "\nCorrelation R:", round(correlation_test$estimate, 3))) +
-    xlab("Scaled RNA Expression (normalized)") +
-    ylab("Scaled Protein Expression (CLR)") +
-    theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5))
-  
-  # Print the plot to the PDF
-  print(p)
-}
-
-# Close the PDF device
-dev.off()
-
-
-
-
-# correlation approach ----
-
-library(dplyr)
-library(tidyr)
-
-library(dplyr)
-library(tidyr)
-
-# Assuming filtered_combined_long is already defined and contains columns for 
-# 'Marker_Names', 'Cell_Type', 'RNA_Expression', and 'CODEX_Expression'
-
-library(dplyr)
-library(tidyr)
-
-# Assuming filtered_combined_long is already defined and contains the columns:
-# 'Marker_Names', 'Cell_Type', 'RNA_Expression', and 'CODEX_Expression'
 
 # Reshape data into separate wide formats for RNA and CODEX
 rna_wide <- filtered_combined_long %>%
@@ -400,29 +229,8 @@ closest_matches_df <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Print the closest matches
+# Print the closest matches: Figure S4F
 print(closest_matches_df)
-
-library(gt)
-library(espnscrapeR)
-gt_table <- gt(closest_matches_df)
-closest_matches_df %>% dplyr::filter(CODEX_Cell_Type != "No Match") %>% 
-gt() %>% 
-  gt_theme_538() %>% 
-  tab_header(title = md("**CODEX/scRNASeq Cell Type Correlation**")) %>% gtsave(filename = "/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Revisions_Integration_BatchCorrection/closest_cell_type_table.pdf")
-```{r}
-closest_matches_df %>% dplyr::filter(CODEX_Cell_Type != "No Match") %>% 
-gt() %>% 
-  gt_theme_538() %>% 
-  tab_header(title = md("**CODEX/scRNASeq Cell Type Correlation**"))
-```
-
-
-
-# make a plot of the correlation approach ----
-
-library(ggplot2)
-library(dplyr)
 
 # Original color scheme
 scrna_cal2_cols <- c("#FFD580", "#FFBF00", "#B0DFE6", "#7DB954", "#64864A", "#8FCACA", "#4682B4", "#CAA7DD", "#B6D0E2", 
@@ -437,14 +245,15 @@ cal2_col_names <- c("Adipo-MSC", "AEC", "Ba/Eo/Ma", "CD4+ T-Cell", "CD8+ T-Cell"
 
 # New unique labels
 new_labels <- c("Adipo-MSC", "AEC", "Autofluorescent", "CD4+ T-Cell", "CD8+ T-Cell", "CLP", "pDC", "HSPC", 
-                "Early Myeloid Progenitor", "Erythroblast", "No Match", "GMP", "Early HSPC", "Erythroid", 
+                "Early Myeloid Progenitor", "Erythroblast", "No Match", "GMP", "Early HSPC", "Erythroid", "Fibro-MSC", 
                 "Intermediate Myeloid", "Macrophages", "B_Cells", "Megakaryocyte", "MEP/Early Erythroblast", "Monocytes", 
-                "Mature Myeloid", "Endosteal", "Plasma Cells", "Immature_B_Cell", "SEC", "THY1+ MSC", "VSMC")
+                "Mature Myeloid", "Endosteal", "Plasma Cells", "Immature_B_Cell", "SEC",  "Osteo-MSC", "THY1+ MSC", "VSMC")
 
 # Initialize a vector to store colors
 new_label_colors_vector <- rep(NA, length(new_labels))
 names(new_label_colors_vector) <- new_labels
 
+# Function to match colors or assign a new one
 # Function to match colors or assign a new one
 get_color <- function(label, original_names, original_colors) {
   if(label %in% original_names) {
@@ -461,6 +270,8 @@ get_color <- function(label, original_names, original_colors) {
       "Mature Myeloid" = "#FFBF00",   # Orange for "Mature Myeloid"
       "Endosteal" = "#FA8072",        # Salmon for "Endosteal"
       "Immature_B_Cell" = "#7DB954",  # Green for "Immature_B_Cell"
+      "Osteo-MSC" = "#FF0A5D", 
+      "Fibro-MSC" = "#A700D4",
       "No Match" = "#000000"          # Black for "No Match"
     )
     return(ifelse(label %in% names(custom_colors), custom_colors[label], "#FFFFFF")) # White as default
@@ -473,20 +284,12 @@ for(i in seq_along(new_labels)) {
   new_label_colors_vector[i] <- get_color(label, cal2_col_names, scrna_cal2_cols)
 }
 
-# Print the named vector to confirm
 new_label_colors_vector["GMP"] <- "#CF9FFF"
-
-# fix the messed up ones
 new_label_colors_vector["Plasma Cells"] <- '#228B22'
 new_label_colors_vector["B_Cells"] <- '#4F9153'
 new_label_colors_vector["Monocytes"] <- '#6495ED'
-  
-  
-
-
-
-# Assuming you have already calculated the correlation matrix and have the closest_matches_df from previous steps
-# and 'scrna_cal2_cols' is your color scheme for scRNA-Seq cell types
+new_label_colors_vector["Fibro-MSC"] <- '#A700D4'
+new_label_colors_vector["Osteo-MSC"] <- '#FF0A5D'
 
 # Create a long dataframe for plotting, with a row for each correlation and the corresponding RNA cell type
 plot_data <- as.data.frame(correlation_matrix) %>%
@@ -494,26 +297,8 @@ plot_data <- as.data.frame(correlation_matrix) %>%
   pivot_longer(cols = -RNA_Cell_Type, names_to = "CODEX_Cell_Type", values_to = "Correlation") %>%
   mutate(RNA_Cell_Type = factor(RNA_Cell_Type, levels = names(new_label_colors_vector)))
 
-library(ggplot2)
-library(dplyr)
-
-# Assuming you have a data frame 'data' from the previous steps with columns 'CODEX_Cell_Type', 
-# 'RNA_Cell_Type', 'Correlation', and that 'highest_correlation_df' is a data frame with columns 
-# 'CODEX_Cell_Type' and 'Highest_RNA_Cell_Type' indicating the scRNA-Seq cell type with the highest correlation for each CODEX cell type.
-
-library(ggplot2)
-library(dplyr)
-library(ggrepel)
-
-# Assuming 'data' is your dataframe and 'highest_correlation_df' is defined as mentioned before
-
-library(ggplot2)
-library(dplyr)
-library(ggrepel)
-
 # Assuming plot_data has been created with columns: 'CODEX_Cell_Type', 'RNA_Cell_Type', 'Correlation'
 # and that 'new_label_colors_vector' is your named vector of colors for the RNA cell types
-
 # Add a flag for the points where the RNA label matches the CODEX label
 plot_data <- plot_data %>%
   mutate(Is_Matching = RNA_Cell_Type == CODEX_Cell_Type)
@@ -538,9 +323,5 @@ p <- ggplot(plot_data, aes(x = CODEX_Cell_Type, y = Correlation, color = RNA_Cel
 
 # Print the plot
 print(p)
-
-
-
-
-# Save the plot as a file
-ggsave("/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Revisions_Integration_BatchCorrection/CODEX_scRNA_Seq_Correlation_Plot_Adjusted_medians.pdf", p, width = 16, height = 8)
+#Figure S4G
+ggsave("CODEX_scRNA_Seq_Correlation_Plot_Adjusted_medians.pdf", p, width = 16, height = 8)
