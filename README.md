@@ -49,8 +49,8 @@ CODEX_Analysis/Step6_AML_ReferenceMapping/RefMap_AML_ForManuscript_Final.R
 CODEX_Analysis/Step6_AML_ReferenceMapping/SpatialJoin_AML.R
 
 **CODEX AML Analysis**
-Figure 7C-D, 7F-G, S10E, S10G-J - CODEX_Analysis/Step7_NeighborhoodAnalysis_AMLandNSM/AML_NSM_neighborhood_analysis_ForManuscript.R
-Neighborhood Enrichment Stats - CODEX_Analysis/Step7_NeighborhoodAnalysis_AMLandNSM/Hypergeometric_Statistics_AML.R
+Figure 7C-D, 7F-G, S10E, S10G-J - CODEX_Analysis/Step7_NeighborhoodAnalysis_AML/AML_NSM_neighborhood_analysis_ForManuscript.R
+Neighborhood Enrichment Stats - CODEX_Analysis/Step7_NeighborhoodAnalysis_AML/Hypergeometric_Statistics_AML.R
 
 **CODEX NSM Neighborhood Analysis**
 Figure S11A-B - CODEX_Analysis/Step5_NSM_ReferenceMapping/NSM_NBM_Correlation.R
