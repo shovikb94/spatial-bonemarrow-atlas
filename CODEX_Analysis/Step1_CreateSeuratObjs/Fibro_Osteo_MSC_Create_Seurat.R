@@ -109,7 +109,7 @@ table(merged_seurat$cluster_anno_l2)
 merged_seurat <- NormalizeData(object = merged_seurat, normalization.method = "CLR", margin = 1)
 saveRDS(merged_seurat, "Immune_Combined_Added_MSC_CD56.RDS")
 
-#Do some plots 
+#Figure S5E -- create violin plot 
 DefaultAssay(merged_seurat)
 Stacked_VlnPlot(merged_seurat, features = c("CD45", "codex2_FOXC1", "codex2_CXCL12", "codex2_CD90", "codex2_CD56", "codex2_PDPN"), 
                 group.by = "cluster_anno_l2", x_lab_rotate = TRUE, pt.size = 0, raster = F)
