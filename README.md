@@ -28,12 +28,14 @@ Figure S3G, S4E, S8B - scRNA_Seq_Analysis/Step2_CellChat/CellChat_ForMaunscript.
 Figure 4C-4D - CODEX_Analysis/Step3_AnnotateCells/NBM_CODEX_Atlas_Combined_Step3_AnnotateCells.R
 
 **CODEX MSC Subset Manual Annotation and Distance Analysis**
+Figure S5E - CODEX_Analysis/Step1_CreateSeuratObjs/Fibro_Osteo_MSC_Create_Seurat.R
 Figure 4E - CODEX_Analysis/Step8_Distance_Analysis/MSC_Distance_Analysis_VlnPlots.R
 CODEX_Analysis/Step8_Distance_Analysis/Osteo_Fibro_MSC_Get_Bone_Overlap.ipynb
 
 **CODEX NBM Neighborhood Analysis**
 Figure 5A, 5D, S7D-E - CODEX_Analysis/Step4_NBM_NeighborhoodAnalysis/NeighborhoodAnalysis_Step4_FINAL.R
 CODEX_Analysis/Step4_NBM_NeighborhoodAnalysis/Combined_NeighborhoodAnalysis.ipynb
+Neighborhood Enrichment Stats - CODEX_Analysis/Step4_NBM_NeighborhoodAnalysis/Hypergeometric_Statistics_NBM.R
 
 **CODEX Structure Distance Analysis**
 Figure 6A-E, S9B, S10G - CODEX_Analysis/Step8_Distance_Analysis/Plot_Rank_Data_ForManuscript.R
@@ -49,10 +51,12 @@ CODEX_Analysis/Step6_AML_ReferenceMapping/SpatialJoin_AML.R
 
 **CODEX AML Analysis**
 Figure 7C-D, 7F-G, S10E, S10G-J - CODEX_Analysis/Step7_NeighborhoodAnalysis_AMLandNSM/AML_NSM_neighborhood_analysis_ForManuscript.R
+Neighborhood Enrichment Stats - CODEX_Analysis/Step7_NeighborhoodAnalysis_AMLandNSM/Hypergeometric_Statistics_AML.R
 
 **CODEX NSM Neighborhood Analysis**
 Figure S11A-B - CODEX_Analysis/Step5_NSM_ReferenceMapping/NSM_NBM_Correlation.R
 CODEX_Analysis/Step5_NSM_ReferenceMapping/NSM_Only_NeighborhoodAnalysis-.ipynb
+Neighborhood Enrichment Stats - CODEX_Analysis/Step5_NSM_ReferenceMapping/Hypergeometric_Statistics_NSM.R
 
 **Integrated Analysis**
 Figure 5F
