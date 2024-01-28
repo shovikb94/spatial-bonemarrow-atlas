@@ -63,7 +63,7 @@ combined <- RunUMAP(combined, dims = 1:30, reduction = "pca", reduction.name = "
 MSCs <- RunUMAP(MSCs, dims = 1:50, reduction = "MSC_pca", reduction.name = "MSC_UMAP_dim50", return.model = TRUE) # rerun find umap to return the umap model
 
 
-# Figure 2H-I - Reference Map DeJong MSCs ----- 
+# Figure 2I - Reference Map DeJong MSCs ----- 
 
 DeJong_MSCs <- readRDS(file = "~/Documents/NBM_Microenvironment/NBM_Atlas_scRNA/Final_scRNA_Analysis/Objects_To_RefMap/DeJong_MSCs.RDS")
 anchors <- FindTransferAnchors(
@@ -109,7 +109,7 @@ DeJong_MSCs <- MapQuery(
 
 
 
-# Figure 2F Fetal MSC Reference Mapping (Supplemental Figure S2G) ------
+# Figure 2I/G Fetal MSC Reference Mapping (Supplemental Figure S2G) ------
 # With fetal bone marrow
 library(SeuratDisk)
 Convert("fig1b_fbm_scaled_gex_updated_dr_20210104.h5ad", dest = "h5seurat", overwrite = TRUE) # Convert h5ad obj from Jardine paper to seurat

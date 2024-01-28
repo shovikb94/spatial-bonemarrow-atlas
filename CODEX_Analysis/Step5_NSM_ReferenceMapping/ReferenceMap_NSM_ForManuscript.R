@@ -230,4 +230,7 @@ p1 <- DimPlot(AML1_183_mapped, raster = TRUE, raster.dpi = c(300,300), group.by 
 p1_raster <- rasterize(p1)
 ggsave(p1_raster,width = 6, height = 6, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_NSM_Step5/Figures/PanelA_AML_183_labeled_UMAP.pdf")
 
+# Supplemental Figure S10A CODEX NPM1C of NSM Samples ----
+VlnPlot(NSM.combined, features = "codex_NPM1C", slot = "data", pt.size = 0, group.by = "classified_cluster_anno_l2", cols = cal2_cols, sort = TRUE) + NoLegend()
+
 

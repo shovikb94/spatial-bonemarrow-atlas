@@ -27,7 +27,7 @@ write.csv(x = immune.filtered@meta.data, file = "/mnt/isilon/tan_lab_imaging/Ana
 fc <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/output/neighborhood_fc.csv")
 neighborhoods <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/output/neighborhood.csv")
 
-# Figure 5B ComplexHeatmap for neighborhoods ----
+# Figure 5A ComplexHeatmap for neighborhoods ----
 neighborhood_mat <- as.matrix(fc[2:33])
 rownames(neighborhood_mat) <- rownames(fc)
 
@@ -148,12 +148,8 @@ c <- p.adjust(c,method = "BH")
 names(c) <- d
 c # contains adjusted p-values for all neighborhoods 
 
-# Supplemental Figure 5D - CODEX HIF1a expression per cell type -----
-cal2_cols <- c("#CF9FFF", "#E7C7DC", "#CAA7DD", "#A8A2D2", "#B6D0E2", "#2874A6", "#5599C8", "#AEC6CF", "#6495ED", "#64b8ed", "#96C5D7", "#40B5AD", "#8FCACA", "#CCE2CB", "#63BA97", "#7DB954", "#64864A", "#019477", "#953553", "#A1045A", "#a15891", "#9C58A1", "#79127F", "#BF40BF", "#FFD580", "#FFC8A2", "#FDDA0D", "#F3B0C3", "#FFBF00", "#ff9d5c", "#DD3F4E", "#FF69B4")
-names(cal2_cols) <- c("HSC", "SPINK2+ HSPC", "HSPC", "GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Mature Myeloid", "Monocytes", "Non-Classical Monocyte", "Macrophages", "pDC", "CLP", "Immature_B_Cell", "B-Cells", "CD4+ T-Cell", "CD8+ T-Cell", "Plasma Cells", "MEP/Early Erythroblast", "CD34+ CD61+", "Erythroblast", "Erythroid", "GATA1neg_Mks", "GATA1pos_Mks", "Adipo-MSC", "THY1+ MSC", "Adipocyte", "Endosteal", "AEC", "SEC", "VSMC", "Schwann Cells")
-VlnPlot(immune.filtered, slot = 'data', cols = cal2_cols, group.by = "cluster_anno_l2",features = "HIF1A", pt.size = 0, sort=TRUE) + NoLegend()
 
-# Supplemental Figure X - Per Sample Nb Composition ----
+# Supplemental Figure S7D - Per Sample Nb Composition ----
 
 neighborhoods <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/output/neighborhood.csv")
 neighborhood_mat <- as.matrix(fc[2:33])
@@ -208,4 +204,8 @@ p1 <- ggplot(neighborhoods, aes(fill=neighborhood_named, x=reorder(as.factor(Sam
 
 ggsave(p1, device = "pdf", width = 5, height = 5, filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/Figures/PerSample_NeighborhoodComposition.pdf")
 
+# Supplemental Figure S7E - CODEX HIF1a expression per cell type -----
+cal2_cols <- c("#CF9FFF", "#E7C7DC", "#CAA7DD", "#A8A2D2", "#B6D0E2", "#2874A6", "#5599C8", "#AEC6CF", "#6495ED", "#64b8ed", "#96C5D7", "#40B5AD", "#8FCACA", "#CCE2CB", "#63BA97", "#7DB954", "#64864A", "#019477", "#953553", "#A1045A", "#a15891", "#9C58A1", "#79127F", "#BF40BF", "#FFD580", "#FFC8A2", "#FDDA0D", "#F3B0C3", "#FFBF00", "#ff9d5c", "#DD3F4E", "#FF69B4")
+names(cal2_cols) <- c("HSC", "SPINK2+ HSPC", "HSPC", "GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Mature Myeloid", "Monocytes", "Non-Classical Monocyte", "Macrophages", "pDC", "CLP", "Immature_B_Cell", "B-Cells", "CD4+ T-Cell", "CD8+ T-Cell", "Plasma Cells", "MEP/Early Erythroblast", "CD34+ CD61+", "Erythroblast", "Erythroid", "GATA1neg_Mks", "GATA1pos_Mks", "Adipo-MSC", "THY1+ MSC", "Adipocyte", "Endosteal", "AEC", "SEC", "VSMC", "Schwann Cells")
+VlnPlot(immune.filtered, slot = 'data', cols = cal2_cols, group.by = "cluster_anno_l2",features = "HIF1A", pt.size = 0, sort=TRUE) + NoLegend()
 

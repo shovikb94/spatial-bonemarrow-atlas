@@ -15,7 +15,7 @@ combined$cluster_anno_l2 <- factor(combined$cluster_anno_l2, levels = c("HSC", "
 cell_order <- c("HSC", "MPP", "Cycling HSPC", "MEP", "Erythroblast", "Late Erythroid", "RBC", "Megakaryocyte", "GMP", "Early Myeloid Progenitor", "Late Myeloid", "Neutrophil", "Monocyte", "Macrophages", "Ba/Eo/Ma", "Cycling DCs", "pDC", "CLP", "Pre-Pro B", "Pro-B", "Pre-B", "Mature B", "Plasma Cell", "CD4+ T-Cell", "CD8+ T-Cell", "AEC", "SEC", "VSMC", "THY1+ MSC", "Adipo-MSC", "OsteoFibro-MSC", "Osteo-MSC", "Osteoblast", "Fibro-MSC")
 
 
-# violin plots 
+# violin plots in Data S1 ----
 
 p1 <- VlnPlot(combined, features = c("CD34", "CD38", "SPINK2", "THY1", "TPSAB1"), pt.size = 0, fill.by = "ident", stack= TRUE, flip = TRUE, cols = scrna_cal2_cols, group.by = "cluster_anno_l2") + geom_boxplot(outlier.shape = NA) + NoLegend() + theme(axis.text = element_text(size = 8))
 ggsave(p1, units = "in", device = "pdf", width = 6, height=3, filename = "/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/Revisions_CellTypeAnnoGuide/figures/HSC_stacked_box_violin.pdf")

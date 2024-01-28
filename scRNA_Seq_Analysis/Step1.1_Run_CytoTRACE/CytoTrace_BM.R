@@ -31,3 +31,14 @@ plotCytoTRACE(cytotrace, phe.vec,
 
 plotCytoGenes(cytotrace)
 
+
+# Figure 2D - CytoTRACE Analysis  ----
+## See Cytotrace script, run by Jon Sussman 
+MSCs_CT <- readRDS("~/Documents/NBM_Microenvironment/NBM_Atlas_scRNA/Final_scRNA_Analysis/CytoTRACE/MSCs_CytoTRACE_computed.RDS")
+p1 <- FeaturePlot(MSCs_CT, features = "CytoTRACE_score", reduction = "MSC_UMAP_dim50", pt.size = 1,coord.fixed = TRUE) + NoAxes() + scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "Spectral")))
+p1_raster <- rasterize(p1, dpi = 300)
+ggsave(p1_raster, device = "pdf", filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/CytoTRACE_Score_FeaturePlot.pdf", units = "in", width = 5, height = 5)
+
+
+
+

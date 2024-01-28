@@ -108,7 +108,7 @@ rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$celltype
 metap_wide_sumz_corplot
 ## can use this to_plot table to check significane of any to_from comparison 
 
-# Supplemental Figure 6B chord diagram ----
+# Supplemental Figure S9B chord diagram ----
 sum_ranks_ct_mat_trunc <- sum_ranks_ct_mat[c(1,2,4,5,7,10,13,20,23,26,27,28),]
 summarized_ranks_sig <- summarized_ranks %>% left_join(metap,by = c("celltype" = "celltype", "structure" = "structure") )
 summarized_ranks_sig_trunc <- summarized_ranks_sig %>% dplyr::filter(celltype %in% c("SPINK2+ HSPC", "HSPC", "GMP_Myeloblast", "Early Myeloid Progenitor", "Mature Myeloid", "Macrophages", "B-Cells", "Erythroid", "MSC", "AEC", "SEC") & meta_p <0.05)
@@ -118,7 +118,7 @@ names(structure_cols) <- levels(as.factor(ranks$structure))
 chord_to_plot <- data.frame(summarized_ranks_sig_trunc$structure, summarized_ranks_sig_trunc$celltype, summarized_ranks_sig_trunc$median_norm_rank)
 chordDiagram(chord_to_plot, grid.col = c(cal2_cols,structure_cols), transparency = 0.2)
 
-# Supplemental Figure S7G (new) -----
+# Supplemental Figure S10G AML -----
 ranks_idx <- read_csv("~/Documents/Manuscripts/NBM_Atlas/ReviewerComments/AML_StructuralAnalysis_SuppFigS7G/combined_aml_idxneighbourhood.csv")
 ranks_idx$neighbourhood <- ranks_idx$neighbourhood+1
 ranks_idx$neighbourhood <- as.factor(ranks_idx$neighbourhood)
@@ -127,7 +127,7 @@ idx_circ <- ranks_idx %>% dplyr::filter(structure == "bone")
 # plot boxplot
 p1 <- idx_circ %>% ggplot(aes(x = reorder(neighbourhood,-normalized_rank), y = normalized_rank, fill = neighbourhood))  + geom_boxplot() + NoLegend() + theme_minimal() 
 
-
+# calculate meta p values (from permutation testing)
 stouffers <- function(pvec) {
   pvec[pvec == 0] <- pvec[pvec == 0] + 1E-16 # handle extreme values 
   pvec[pvec == 1] <- pvec[pvec == 1] - 1E-16 # handle extreme values
@@ -156,7 +156,7 @@ posttx_circ <- ranks_posttx %>% dplyr::filter(structure == "bone")
 p2 <- posttx_circ %>% ggplot(aes(x = reorder(neighbourhood,-normalized_rank), y = normalized_rank, fill = neighbourhood))  + geom_boxplot() + NoLegend() + theme_minimal() 
 hspc_circ %>% ggplot(aes(x = structure, y = normalized_rank, fill = structure, linetype = celltype))  + geom_boxplot() + scale_fill_manual(values = c("#FAA59E","#CADCEB","#C2E7B9","#E8DBEC","#FED194","#ffe2db")) + scale_linetype_manual(values=c("solid", "longdash")) + theme_minimal() + coord_polar()
 
-
+# calculate meta p values (from permutation testing)
 stouffers <- function(pvec) {
   pvec[pvec == 0] <- pvec[pvec == 0] + 1E-16 # handle extreme values 
   pvec[pvec == 1] <- pvec[pvec == 1] - 1E-16 # handle extreme values
@@ -175,4 +175,7 @@ metap_wide_sumz_corplot <- metap_wide_sumz[,-1]
 rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$neighbourhood
 
 plot_grid(p1,p2, ncol = 1)
+
+
+
 

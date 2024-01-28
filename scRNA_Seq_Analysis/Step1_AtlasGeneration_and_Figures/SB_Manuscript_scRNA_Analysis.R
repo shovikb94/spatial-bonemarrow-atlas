@@ -282,68 +282,19 @@ write.csv(combined_markers_anno, "SB66_combined_markers_annotated.csv")
 combined@meta.data %>% dplyr::summarise(c(mean(nCount_RNA), mean(nFeature_RNA), mean(percent.mt)))
 
 
-# Supplemental Figure 1C QC Metrics -----
+# Supplemental Figure S1C QC Metrics -----
 VlnPlot(combined, group.by ="cluster_anno_coarse", features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), pt.size=0) & scale_fill_manual(values =c("#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896"))
 VlnPlot(combined, group.by ="cluster_anno_coarse", features = c("nCount_RNA"), pt.size=0, y.max = quantile(combined$nCount_RNA,0.99)) & scale_fill_manual(values =c("#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896"))
 
 combined@meta.data %>% dplyr::group_by(cluster_anno_coarse)  %>% summarise(median(nFeature_RNA), median(nCount_RNA), median(percent.mt)) %>% gt() -> supp_fig_1D
 gtsave(supp_fig_1D, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure1/Supp_Fig_1D.pdf")
 
-# Supplemental Figure 1D Inflammation ----- 
-#Run AUCell
-combined.small <- subset(combined, downsample = 300) # note the results may be subtly different between runs because of downsampling step
-fmeta <- data.frame(symbol = rownames(combined.small)) 
-rownames(fmeta) <- fmeta$symbol
-eset_combined.small <- new("ExpressionSet",
-                           assayData = assayDataNew("environment", exprs=combined.small@assays$RNA@counts, 
-                                                    norm_exprs = combined.small@assays$RNA@data),
-                           phenoData =  new("AnnotatedDataFrame", data = combined.small@meta.data),
-                           featureData = new("AnnotatedDataFrame", data = fmeta))
-exprMatrix <- exprs(eset_combined.small)
-geneSets <- getGmt("~/Downloads/h.all.v2022.1.Hs.symbols.gmt")
-geneSets <- subsetGeneSets(geneSets, rownames(exprMatrix)) 
-cbind(nGenes(geneSets))
-geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets)))
-# add random noise
-# Random
-set.seed(321)
-extraGeneSets <- c(
-  GeneSet(sample(rownames(exprMatrix), 50), setName="Random (50g)"),
-  GeneSet(sample(rownames(exprMatrix), 500), setName="Random (500g)"))
-
-countsPerGene <- apply(exprMatrix, 1, function(x) sum(x>0))
-# Housekeeping-like
-extraGeneSets <- c(extraGeneSets,
-                   GeneSet(sample(names(countsPerGene)[which(countsPerGene>quantile(countsPerGene, probs=.95))], 100), setName="HK-like (100g)"))
-
-geneSets <- GeneSetCollection(c(geneSets,extraGeneSets))
-names(geneSets)
-# Start to build the cell rankings
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=1, plotStats=FALSE)
-#save(cells_rankings, file="AUCell/cells_rankings.RData")
-
-cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
-#save(cells_AUC, file="AUCell/AUCecells_AUC.RData")
-
-set.seed(123)
-par(mfrow=c(3,3)) 
-#cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=FALSE, assign=TRUE)
-#save(cells_assignment, file="AUCell/cellassignment_AUC.RData")
-
-auc_test <- as.data.frame(t(cells_AUC@assays@data$AUC))
-combined_AUC <- AddMetaData(combined.small, auc_test)
-
-
-FeaturePlot(object = combined_AUC, features = c("HALLMARK_INFLAMMATORY_RESPONSE"), coord.fixed = TRUE) & NoAxes()
-
-
-
-# Supplemental Figure 1E UMAP Feature Plots -----
+# Supplemental Figure S1E UMAP Feature Plots -----
 p1 <- FeaturePlot(object = combined, raster = TRUE, raster.dpi = c(1028,1028), features = c("CXCL12","NCAM1","CDH5", "PTPRC", "MZB1", "CSF3R"), cols = brewer.pal(n = 100, name = "Reds"),ncol = 6, max.cutoff = 'q99', coord.fixed = TRUE) & NoAxes() 
 p1_raster <- rasterize(p1)
 ggsave(p1_raster,file = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure1/PanelE_scRNA_MarkerFeaturePlots.pdf", device = "pdf", width = 15, height = 2)
 
-# Supplemental Figure 1F Azimuth Comparison ----
+# Supplemental Figure S1G Azimuth Comparison ----
 azimuth <- readRDS("~/Documents/AML_Microenvironment/SB36_CibersortX/Azimuth_BM_Reference/ref.Rds")
 DimPlot(azimuth, reduction = "refUMAP", group.by = "celltype.l2") + coord_fixed() + NoAxes()
 table(azimuth$celltype.l2)
@@ -553,10 +504,10 @@ ggsave(p1_raster,filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/p
 ggsave(p1_raster,filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelA_scRNA_MSC_UMAP.pdf")
 
 
-# Supplemental Figure 2A RNAlo MSC QC ----
+# Supplemental Figure S3A RNAlo MSC QC ----
 VlnPlot(subset(combined, cluster_anno_l2 %in% c("Adipo-MSC", "Osteo-MSC", "THY1+ MSC", "OsteoFibro-MSC", "Osteoblast", "Fibro-MSC", "RNAlo MSC")), features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), pt.size = 0, cols = cal2_cols)
 
-# Supplemental Figure 2B - Various Canonical MSC genes ---- 
+# Supplemental Figure S3B - Various Canonical MSC genes ---- 
 
 mesenchymal_cell_types <-  c("Adipo-MSC","THY1+ MSC","Fibro-MSC","OsteoFibro-MSC","Osteo-MSC","Osteoblast", "SEC", "AEC", "VSMC") # need to reload the original untransformed combined object
 mes <- subset(combined, cluster_anno_l2 %in% mesenchymal_cell_types)
@@ -571,38 +522,7 @@ p1 <- VlnPlot(subset(combined, cluster_anno_l2 %in% mesenchymal_cell_types),slot
 ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelB_NES_VlnPlots.pdf',
        device = 'pdf', width = 10, height = 3.5)
 
-# Supplemental Figure 2C - Lymphatic Endothelial cell markers ----
-p1 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("LYVE1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
-p1_raster <- rasterize(p1, dpi = 300)
-ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_LYVE1.pdf", device = "pdf", height = 5, width = 7)
-p2 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PROX1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
-p2_raster <- rasterize(p2, dpi = 300)
-ggsave(p2_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PROX1.pdf", device = "pdf", height = 5, width = 7)
-p3 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PDPN"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
-p3_raster <- rasterize(p3, dpi = 300)
-ggsave(p3_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PDPN.pdf", device = "pdf", height = 5, width = 7)
-
- 
-FeaturePlot(MSCs, reduction = "MSC_UMAP_dim30", features = c("LYVE1", "PROX1", "PDPN"), pt.size = 0.1, max.cutoff = 'q99', coord.fixed = TRUE, cols=brewer.pal(n = 100, name = "Reds")) & NoAxes()
-
-# Supplemental Figure 2E - CSF3 -----
-p1 <- VlnPlot(combined, features = c("CSF3"), pt.size = 1,  sort = TRUE) + NoLegend()
-ggsave(p1, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelD_GCSF_markers.pdf", device = "pdf", height = 5, width = 12)
-
-p1 <- FeaturePlot(combined, max.cutoff = 'q99', features = c("CSF3"), coord.fixed = TRUE, order = TRUE, cols=brewer.pal(n = 100, name = "Reds")) & NoAxes() # note use of order=TRUE to highlight the positive cells
-p1_raster <- rasterize(p1, dpi = 300)
-ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelD_CSF3_UMAP.pdf", device = "pdf", height = 5, width = 7)
-
-# Figure 2B - Dot Plot showing key DEGs between MSC subsets -----
-DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
-ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelB_DotPlot_MCS_DEGs.pdf',
-       device = 'pdf', width = 10, height = 3.5)
-VlnPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
-
-# Not a figure - but sorting strategy justification -----
-DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("PTPRC","GYPA", "CD38","CDH5", "PDPN", "NCAM1", "LEPR", "THY1"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
-
-# Supplemental Figure 2D MSC and Endo frequency per sample ----
+# Supplemental Figure S3E MSC and Endo frequency per sample ----
 MSCs$cluster_anno_l2 <- droplevels(MSCs$cluster_anno_l2)
 cell_counts_MSC <- as.data.frame(table(MSCs$cluster_anno_l2,MSCs$orig.ident))
 
@@ -655,6 +575,38 @@ cell_counts_Endo$rel_freq <-  cell_counts_Endo$Freq / cell_counts_Endo$total
 cell_counts_Endo_summarystats <-  cell_counts_Endo %>% group_by(Var1) %>% summarise(median=median(rel_freq), std.dev = sd(rel_freq), min = min(rel_freq), max = max(rel_freq))
 # test that SEC is more than AEC
 prop.test(7,12, p=0.5, correct = FALSE)
+
+# Supplemental Figure S3F - Lymphatic Endothelial cell markers ----
+p1 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("LYVE1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
+p1_raster <- rasterize(p1, dpi = 300)
+ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_LYVE1.pdf", device = "pdf", height = 5, width = 7)
+p2 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PROX1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
+p2_raster <- rasterize(p2, dpi = 300)
+ggsave(p2_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PROX1.pdf", device = "pdf", height = 5, width = 7)
+p3 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PDPN"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
+p3_raster <- rasterize(p3, dpi = 300)
+ggsave(p3_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PDPN.pdf", device = "pdf", height = 5, width = 7)
+
+ 
+FeaturePlot(MSCs, reduction = "MSC_UMAP_dim30", features = c("LYVE1", "PROX1", "PDPN"), pt.size = 0.1, max.cutoff = 'q99', coord.fixed = TRUE, cols=brewer.pal(n = 100, name = "Reds")) & NoAxes()
+
+# Supplemental Figure S4C - CSF3 -----
+p1 <- VlnPlot(combined, features = c("CSF3"), pt.size = 1,  sort = TRUE) + NoLegend()
+ggsave(p1, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelD_GCSF_markers.pdf", device = "pdf", height = 5, width = 12)
+
+p1 <- FeaturePlot(combined, max.cutoff = 'q99', features = c("CSF3"), coord.fixed = TRUE, order = TRUE, cols=brewer.pal(n = 100, name = "Reds")) & NoAxes() # note use of order=TRUE to highlight the positive cells
+p1_raster <- rasterize(p1, dpi = 300)
+ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelD_CSF3_UMAP.pdf", device = "pdf", height = 5, width = 7)
+
+# Figure 2B - Dot Plot showing key DEGs between MSC subsets -----
+DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
+ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelB_DotPlot_MCS_DEGs.pdf',
+       device = 'pdf', width = 10, height = 3.5)
+VlnPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
+
+# Not a figure - but sorting strategy justification -----
+DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("PTPRC","GYPA", "CD38","CDH5", "PDPN", "NCAM1", "LEPR", "THY1"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
+
 # Supplemental Table 2 - calculate DEGs between MSC and Endo subsets ----
 MSCs<- SetIdent(MSCs, value = "cluster_anno_l2")
 MSC_markers <- FindAllMarkers(MSCs)
@@ -668,13 +620,6 @@ ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/P
 p1 <- DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NGFR", "MCAM", "NT5E", "THY1", "ENG"), scale = FALSE, cluster.idents = FALSE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
 ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelB_DotPlot_MCS_DEGs.eps',
        device = 'pdf', width = 10, height = 3.5)
-
-# Figure 2D - CytoTRACE Analysis  ----
-## See Cytotrace script, run by Jon Sussman 
-MSCs_CT <- readRDS("~/Documents/NBM_Microenvironment/NBM_Atlas_scRNA/Final_scRNA_Analysis/CytoTRACE/MSCs_CytoTRACE_computed.RDS")
-p1 <- FeaturePlot(MSCs_CT, features = "CytoTRACE_score", reduction = "MSC_UMAP_dim50", pt.size = 1,coord.fixed = TRUE) + NoAxes() + scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "Spectral")))
-p1_raster <- rasterize(p1, dpi = 300)
-ggsave(p1_raster, device = "pdf", filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/CytoTRACE_Score_FeaturePlot.pdf", units = "in", width = 5, height = 5)
 
 # Figure 2D Make dot plot of DEGs between SEC and AEC -----
 Endo_markers <- FindMarkers(Endo, group.by = 'cluster_anno_l2', ident.1 = "AEC", ident.2 = "SEC")
@@ -766,7 +711,7 @@ ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure3/panels/
 
 
 
-# Figure 5F - AUCell Hypoxia Score Analysis ----
+# Figure 5E - AUCell Hypoxia Score Analysis ----
 myeloid_development <- c("HSC", "MPP","Cycling HSPC", "GMP", "Early Myeloid Progenitor", "Late Myeloid", "Neutrophil")
 FeaturePlot(combined_AUC, reduction = "UMAP_dim30", features = "HALLMARK_HYPOXIA", coord.fixed = TRUE, max.cutoff = 'q99') + 
   scale_color_gradientn(colours = rev(brewer.pal(n = 11, name = "RdBu"))) + NoAxes()

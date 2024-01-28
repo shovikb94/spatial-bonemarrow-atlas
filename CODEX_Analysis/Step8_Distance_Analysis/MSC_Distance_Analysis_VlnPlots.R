@@ -89,7 +89,7 @@ for (i in 1:length(sample_names)) {
   }
 }
 
-#Make violin plot 
+#Figure 4E Make violin plot ----
 msc_data <- data.frame(
   Group = rep(c("Osteo_MSC", "Fibro_MSC", "THY1+ MSC", "Adipo-MSC"), 
               times = c(length(osteomsc_dist), length(fibromsc_dist), length(thy1msc_dist), length(adipomsc_dist))),

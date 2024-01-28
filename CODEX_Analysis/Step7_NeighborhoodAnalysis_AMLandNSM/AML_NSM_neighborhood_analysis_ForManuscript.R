@@ -10,35 +10,6 @@ setwd("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_
 require(dplyr)
 require(stringr)
 
-coalesce_join <- function(x, 
-                          y, 
-                          by = NULL, 
-                          keep = c("left", "right"), # "left" means keep value from left table if values exist in both tables.
-                          suffix = c(".x", ".y"), # Same as the suffix argument in dplyr joins. 
-                          join = c("full_join","left_join", "right_join", "inner_join") # Choose a join type from the list. The default is full_join.
-) { 
-  keep = match.arg(keep) 
-  join = match.arg(join) 
-  join = match.fun(join) # Confirm the join argument is in the list and match the string to the function
-  
-  # Depends on the keep argument, overwrite the duplicate value
-  # If keep = "left", the value from the left table will be kept, vice versa.
-  if (keep == "left") suffix_ = suffix else suffix_ = rev(suffix)
-  
-  join(x, y, by = by, suffix = suffix) %>% 
-    mutate(
-      across( # Apply the coalesce function to all overlapped columns
-        ends_with(suffix_[1]), # Select columns ended with .x if keep = "left"; or .y if keep = "right"
-        ~coalesce(.,
-                  get(str_replace(cur_column(), suffix_[1], suffix_[2])) # Replace .x in var.x with .y to generate var.y, if keep = "left"; or vice versa.
-        ),
-        .names = "{str_remove(.col, suffix_[1])}" # Remove the suffix from the combined columns
-      ),
-      .keep = "unused") # Remove the temporary columns ended with suffix
-}
-
-
-
 # read in objects
 AML1_183_mapped <- readRDS("objects/AML1_183_mapped.RDS")
 AML1_382_mapped <- readRDS("objects/AML1_382_mapped.RDS")
@@ -131,10 +102,6 @@ NSM.combined@meta.data <- mutate(NSM.combined@meta.data, Region = "reg001")
 
 write.csv(x = NSM.combined@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/NSM_filtered_ForNeighborhoods.csv")
 
-
-
-
-
 ### Use Jupyter notebook to perform neighborhood analysis and return here ###
 
 # Generate Figures from AML Mapping ----
@@ -175,13 +142,10 @@ df_frequency_df <- df_frequency_df %>%
 df_frequency_df$rel_freq <-  df_frequency_df$Frequency / df_frequency_df$total
 df_frequency_df %>% group_by(Sample) %>% summarise(sum(rel_freq)) # just confirm it adds up to one
 
-# Figure 7C GATA1 figure ----
-VlnPlot(subset(All.combined_mapped, classified_cluster_anno_l2 == "NPM1 Mutant Blast"), features = c("codex_GATA1"), group.by = "Sample_Timepoint", pt.size = 0) 
-## Test for markers enriched pre and post therapy, GATA1 text reference ----
-data_dx <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Dx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
-data_mrd <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Post-Tx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
-
-t.test(data_mrd$GATA1,data_dx$GATA1) # t=36.553, p < 2.2e-16
+# Related to Figure 7C
+FeatureScatter(AML3_1329_mapped, feature1 = "x.coord", feature2 = "y.coord", group.by = "classified_cluster_anno_l2", cols = cal2_cols, pt.size = 0.5)
+FeatureScatter(AML3_1443_mapped, feature1 = "x.coord", feature2 = "y.coord", group.by = "classified_cluster_anno_l2", cols = cal2_cols, pt.size = 0.5)
+FeatureScatter(subset(All.combined, Sample_Name == "NSM_1720") , feature1 = "x.coord", feature2 = "y.coord", group.by = "classified_cluster_anno_l2", cols = cal2_cols, pt.size = 0.1)
 
 # Figure 7D MSC Frequency in AML vs. NSM ----
 
@@ -266,6 +230,13 @@ t.test(subset(All_ct_freqs, subset = Sample_Timepoint != "NSM" & classified_clus
 t.test(subset(All_ct_freqs, subset = Sample_Timepoint != "NSM" & (classified_cluster_anno_l2 == "THY1+ MSC"))$freq, subset(All_ct_freqs, subset = Sample_Timepoint == "NSM" & (classified_cluster_anno_l2 == "THY1+ MSC"))$freq)
 # p = 0.03651, t=2.7096,  0.0043 vs. 0.00138
 
+# Figure 7F GATA1 figure ----
+VlnPlot(subset(All.combined_mapped, classified_cluster_anno_l2 == "NPM1 Mutant Blast"), features = c("codex_GATA1"), group.by = "Sample_Timepoint", pt.size = 0) 
+## Test for markers enriched pre and post therapy, GATA1 text reference ----
+data_dx <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Dx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
+data_mrd <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Post-Tx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
+
+t.test(data_mrd$GATA1,data_dx$GATA1) # t=36.553, p < 2.2e-16
 
 
 
@@ -279,7 +250,7 @@ df_frequency_df  %>%  ggplot(mapping = aes(x = neighborhood10, y = rel_freq, fil
   ylab("Frequency") + scale_fill_manual(values = c("#FA8072", "#89CFF0", "#734F96")) + theme_minimal() + RotatedAxis()+
   ggtitle("Frequency of Neighborhood Membership by Mutation Status and Timepoint")
 
-# Figure 7F - Plot neighborhoods heatmap for Dx -----
+## Figure 7G - Plot neighborhoods heatmap for Dx -----
 neighborhoods <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/NeighborhoodsOutput/AML_only_combined.neighborhood_blasts_separated_DxOnly.csv")
 fc <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/NeighborhoodsOutput/AML_only.combined_neighborhood_fc_blasts_separated_DxOnly.csv")
 
@@ -315,7 +286,7 @@ Dx_nb_names <- c("0" = "Erythroid/Myeloid/Lymphoid", "1" = "Monocyte", "2" = "MS
 neighborhoods$neighborhood_named <- Dx_nb_names[as.character(neighborhoods$neighborhood10)]
 
 
-## repeat for Post-Therapy AML ----
+## Figure 7G - Plot neighborhoods heatmap for Post-Tx ----- 
 neighborhoods <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/NeighborhoodsOutput/AML_only_combined.neighborhood_blasts_separated_PostTx.csv")
 fc <- read_csv("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/NeighborhoodsOutput/AML_only.combined_neighborhood_fc_blasts_separated_PostTx.csv")
 neighborhood_mat <- as.matrix(fc[2:31])
@@ -348,7 +319,7 @@ p2 <- ggplot(neighborhoods, aes(x = neighborhood_named, fill=orig.ident)) +
 library(cowplot)
 plot_grid(p1,p2)
 
-# AML NPM1 Staining Per Cell Type For Revision -----
+# AML NPM1 Staining Per Cell Type For Rebuttal -----
 All.combined_mapped_blasts_separated <- SetIdent(All.combined_mapped_blasts_separated, value = "classified_cluster_anno_l2")
 small_clusters <- names(which(table(Idents(All.combined_mapped_blasts_separated)) < 10))
 All.combined_mapped__blasts_separated_filtered <- subset(All.combined_mapped_blasts_separated, idents = small_clusters, invert = TRUE)
