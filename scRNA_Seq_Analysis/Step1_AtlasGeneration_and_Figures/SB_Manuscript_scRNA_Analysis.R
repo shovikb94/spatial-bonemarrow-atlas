@@ -289,12 +289,70 @@ VlnPlot(combined, group.by ="cluster_anno_coarse", features = c("nCount_RNA"), p
 combined@meta.data %>% dplyr::group_by(cluster_anno_coarse)  %>% summarise(median(nFeature_RNA), median(nCount_RNA), median(percent.mt)) %>% gt() -> supp_fig_1D
 gtsave(supp_fig_1D, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure1/Supp_Fig_1D.pdf")
 
-# Supplemental Figure S1E UMAP Feature Plots -----
+# Supplemental Figure S1D UMAP Feature Plots -----
 p1 <- FeaturePlot(object = combined, raster = TRUE, raster.dpi = c(1028,1028), features = c("CXCL12","NCAM1","CDH5", "PTPRC", "MZB1", "CSF3R"), cols = brewer.pal(n = 100, name = "Reds"),ncol = 6, max.cutoff = 'q99', coord.fixed = TRUE) & NoAxes() 
 p1_raster <- rasterize(p1)
 ggsave(p1_raster,file = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure1/PanelE_scRNA_MarkerFeaturePlots.pdf", device = "pdf", width = 15, height = 2)
 
-# Supplemental Figure S1G Azimuth Comparison ----
+
+# Figure S1E CODEX Cell Type Frequencies Per Sample By Age ----
+ggplot(data=percentage_data, aes(x=Age,y=percentage, fill=cluster_anno_l1)) +
+  geom_bar(position="fill",stat="identity") + 
+  theme_bw() + 
+  labs(y='Cell Type Frequency') + 
+  labs(x='') + scale_fill_manual(values=cal1_cols) + theme(axis.text = element_text(size=16)) + ggtitle("CODEX Cell Type Frequencies Per Sample") 
+
+# perform linear regression testing
+linear_regression_results <- percentage_data %>%
+  group_by(cluster_anno_l1) %>%
+  do(model = lm(percentage ~ Age, data = .))
+
+# Extract p-values and R-squared values
+result_df <- linear_regression_results %>%
+  summarise(
+    Cell_Type = cluster_anno_l1,
+    P_Value = coef(summary(model))[, "Pr(>|t|)"][2],
+    R_Value = summary(model)$r.squared
+  )
+
+# confirm everything adds up to 100 per patient
+percentage_data %>% group_by(orig.ident) %>% summarise(sum(percentage))
+
+# repeat for MSCs
+
+# plot cell types as function of age
+percentage_data <- MSCs@meta.data %>%
+  group_by(orig.ident, cluster_anno_l2) %>%
+  summarise(count = n()) %>% 
+  mutate(percentage = count / sum(count) * 100)
+
+percentage_data <- left_join(percentage_data, additional_md, by = "orig.ident")
+
+# Create the ggplot2 plot
+ggplot(percentage_data, aes(x = Age, y = percentage, color = cluster_anno_l2)) +
+  geom_line() + geom_point() +
+  labs(title = "Cell Type Percentages by Age",
+       x = "Age",
+       y = "Percentage") +
+  scale_fill_brewer(palette = "Set1") +  # Choose a color palette
+  theme_minimal()
+
+linear_regression_results <- percentage_data %>%
+  group_by(cluster_anno_l2) %>%
+  do(model = lm(percentage ~ Age, data = .))
+
+# Extract p-values and R-squared values
+result_df <- linear_regression_results %>%
+  summarise(
+    Cell_Type = cluster_anno_l2,
+    P_Value = coef(summary(model))[, "Pr(>|t|)"][2],
+    R_Value = summary(model)$r.squared
+  )
+print(result_df)
+
+
+
+# Supplemental Figure S1F Azimuth Comparison ----
 azimuth <- readRDS("~/Documents/AML_Microenvironment/SB36_CibersortX/Azimuth_BM_Reference/ref.Rds")
 DimPlot(azimuth, reduction = "refUMAP", group.by = "celltype.l2") + coord_fixed() + NoAxes()
 table(azimuth$celltype.l2)
