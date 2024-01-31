@@ -4,7 +4,7 @@ This repository contains the code used to generate figures and perform analysis 
 **Figure Manifest**
 ____________________________________
 **General scRNA-Seq Analysis**
-Figure 1B-D, S1C-G,Figure 2A-C, Figure 2G-H, Figure S3A-B, Figure S3E-F , Supplemental Table S2, Figure 3A, Figure 5E, Figure S7B- scRNA_Seq_Analysis/Step1_AtlasGeneration_and_Figures/SB_Manuscript_scRNA_Analysis.R
+Figure 1B-D, S1C-F,Figure 2A-C, Figure 2G-H, Figure S3A-B, Figure S3E-F , Supplemental Table S2, Figure 3A, Figure 5E, Figure S7B- scRNA_Seq_Analysis/Step1_AtlasGeneration_and_Figures/SB_Manuscript_scRNA_Analysis.R
 
 **scRNA-Seq Inflammation Analysis**
 Figure S2A-D
