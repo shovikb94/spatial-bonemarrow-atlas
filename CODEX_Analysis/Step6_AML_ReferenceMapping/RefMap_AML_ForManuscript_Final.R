@@ -45,7 +45,6 @@ immune.combined <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_
 AML1_183 <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/codex_AML1_183_SeuratObj.RDS") 
 AML1_382 <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/codex_AML1_382_SeuratObj.RDS")
 AML2_191 <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/codex_AML2_191_SeuratObj.RDS")
-AML2_380 <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/codex_AML2_380_SeuratObj.RDS")
 AML3_1329 <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/codex_AML3_1329_SeuratObj.RDS")
 AML3_1443 <- readRDS("/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/codex_AML3_1443_SeuratObj.RDS")
 
@@ -57,18 +56,16 @@ AML2_191$orig.ident <- "SB67_NBM44_AML2_191_CODEX_Mesmer"
 AML1_183_md <- AML1_183@meta.data
 AML1_382_md <- AML1_382@meta.data
 AML2_191_md <- AML2_191@meta.data
-AML2_380_md <- AML2_380@meta.data
 AML3_1329_md <- AML3_1329@meta.data
 AML3_1443_md <- AML3_1443@meta.data
 
 write.csv(AML1_183_md, "ReferenceMap_AML_Step6/seurat_metadata/AML1_183_md.csv")
 write.csv(AML1_382_md, "ReferenceMap_AML_Step6/seurat_metadata/AML1_382_md.csv")
 write.csv(AML2_191_md, "ReferenceMap_AML_Step6/seurat_metadata/AML2_191_md.csv")
-write.csv(AML2_380_md, "ReferenceMap_AML_Step6/seurat_metadata/AML2_380_md.csv")
 write.csv(AML3_1329_md, "ReferenceMap_AML_Step6/seurat_metadata/AML3_1329_md.csv")
 write.csv(AML3_1443_md, "ReferenceMap_AML_Step6/seurat_metadata/AML3_1443_md.csv")
 
-ob.list <- list(AML1_183,AML1_382,AML2_191,AML2_380, AML3_1329, AML3_1443)
+ob.list <- list(AML1_183,AML1_382,AML2_191, AML3_1329, AML3_1443)
 for (i in 1:length(ob.list)) {
   # ob.list[[i]] <- subset(ob.list[[i]], cells = cells.use)
   ob.list[[i]] <- NormalizeData(object = ob.list[[i]], normalization.method = "CLR", margin = 1)
@@ -84,11 +81,10 @@ for (i in 1:length(ob.list)) {
 AML1_183 <- ob.list[[1]]
 AML1_382 <- ob.list[[2]]
 AML2_191 <- ob.list[[3]]
-AML2_380 <- ob.list[[4]]
-AML3_1329 <- ob.list[[5]]
-AML3_1443 <- ob.list[[6]]
+AML3_1329 <- ob.list[[4]]
+AML3_1443 <- ob.list[[5]]
 
-# merge objects - omitting 380 because of challenges in determining true MRD cells
+# merge objects 
 AML.combined <- merge(x=AML1_183, y = c(AML1_382,AML2_191, AML3_1329, AML3_1443), add.cell.ids = c("AML1_183", "AML1_382", "AML2_191","AML3_1329", "AML3_1443"))
 
 # Perform reference mapping
@@ -99,7 +95,7 @@ anchors <- FindTransferAnchors(
   reference.reduction = "pca",
   dims = 1:30
 )
-# saveRDS(anchors, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/AML_anchors_final_380removed_FINAL_040423.RDS")
+# saveRDS(anchors, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/objects/AML_anchors_final_FINAL_040423.RDS")
 
 AML.combined <- MapQuery(
   anchorset = anchors,
