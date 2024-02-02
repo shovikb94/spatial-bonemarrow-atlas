@@ -212,8 +212,8 @@ All.combined@meta.data <- mutate(All.combined@meta.data, IsMyeloid = classified_
 cell_counts_l2 <- mutate(cell_counts_l2, IsAML = Var2 %in% orig.ident_annotations)
 table(subset(All.combined, subset = Sample_Name %in% c("AML1_Dx","AML2_Dx", "AML3_Dx"))$IsMyeloid)
 table(subset(All.combined, subset = Sample_Name %in% c("NSM_1086", "NSM_1720", "NSM_1996"))$IsMyeloid)
-prop.test(x= c(52274, 38138), n = c((5735+52274), (127162+38138)))
-# results - p <2.2e-16 , prop1 = 0.901 , prop2 = 0.231
+prop.test(x= c(52274, 38138), n = c((57535+52274), (127162+38138)))
+# results - p <2.2e-16 , prop1 = 0.476 , prop2 = 0.231
 
 # Map mutant cells ----
 ## Load classified spatially joined dataframes to map mutant cell IDs
