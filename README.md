@@ -1,5 +1,7 @@
 # spatial-bonemarrow-atlas
-This repository contains the code used to generate figures and perform analysis for the manuscript titled "Transcriptomic and Spatial Proteomic Profiling Reveals the Cellular Composition and Spatial Organization of the Human Bone Marrow Microenvironment"
+This repository contains the code used to generate figures and perform analysis for the manuscript titled "Transcriptomic and Spatial Proteomic Profiling Reveals the Cellular Composition and Spatial Organization of the Human Bone Marrow Microenvironment". The data from this manuscript is interactively browsable at:https://cscb.research.chop.edu/index.php/bm-data.
+
+All data will be made publicly available upon publication. 
 
 **Figure Manifest**
 ____________________________________
