@@ -5,6 +5,7 @@ library(ggplot2)
 library(readr)
 library(tidyr)
 
+# Figure 2E -----
 cfu <- read_csv("CFU.csv")
 
 cfu_long <- pivot_longer(cfu, cols = 2:4, names_to = "Sample", values_to = "Relative CFU")
