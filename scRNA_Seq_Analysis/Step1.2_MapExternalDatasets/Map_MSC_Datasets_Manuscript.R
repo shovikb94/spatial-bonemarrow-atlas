@@ -109,7 +109,7 @@ DeJong_MSCs <- MapQuery(
 
 
 
-# Figure 2I Fetal MSC Reference Mapping (Supplemental Figure S3C) ------
+# Figure 2I Fetal MSC Reference Mapping (Supplemental Figure S4B-C) ------
 # With fetal bone marrow
 library(SeuratDisk)
 Convert("fig1b_fbm_scaled_gex_updated_dr_20210104.h5ad", dest = "h5seurat", overwrite = TRUE) # Convert h5ad obj from Jardine paper to seurat
