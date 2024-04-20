@@ -61,7 +61,7 @@ ggplot(fbm@meta.data, aes(fill=predicted.MSC_refmap, x=cell.labels)) +
   ylab("Percentage of Total MSCs") + xlab("Sample") + scale_fill_manual(values=cal2_cols, limits=force) # limits=force drops unused levels from the legend
 
 
-# Supplemental Figure S2H Gene Ontology Metascape Analysis ----
+# Supplemental Figure S4C Gene Ontology Metascape Analysis ----
 GO_Top10 <- read_csv("Top10_FibroMSC_FetalvsAdult_CellType_GO.csv")
 GO_Top10$DescriptionID <- paste0(GO_Top10$Description,"_", GO_Top10$GO)
 GO_Top10 <- GO_Top10 %>% mutate(Log10_qval_direction=replace(`Log10(q)`, Direction=="Fetal", -`Log10(q)`))
