@@ -580,7 +580,7 @@ p1 <- VlnPlot(subset(combined, cluster_anno_l2 %in% mesenchymal_cell_types),slot
 ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelB_NES_VlnPlots.pdf',
        device = 'pdf', width = 10, height = 3.5)
 
-# Supplemental Figure S3E MSC and Endo frequency per sample ----
+# Supplemental Figure S3C MSC and Endo frequency per sample ----
 MSCs$cluster_anno_l2 <- droplevels(MSCs$cluster_anno_l2)
 cell_counts_MSC <- as.data.frame(table(MSCs$cluster_anno_l2,MSCs$orig.ident))
 
@@ -634,21 +634,7 @@ cell_counts_Endo_summarystats <-  cell_counts_Endo %>% group_by(Var1) %>% summar
 # test that SEC is more than AEC
 prop.test(7,12, p=0.5, correct = FALSE)
 
-# Supplemental Figure S3F - Lymphatic Endothelial cell markers ----
-p1 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("LYVE1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
-p1_raster <- rasterize(p1, dpi = 300)
-ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_LYVE1.pdf", device = "pdf", height = 5, width = 7)
-p2 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PROX1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
-p2_raster <- rasterize(p2, dpi = 300)
-ggsave(p2_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PROX1.pdf", device = "pdf", height = 5, width = 7)
-p3 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PDPN"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
-p3_raster <- rasterize(p3, dpi = 300)
-ggsave(p3_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PDPN.pdf", device = "pdf", height = 5, width = 7)
-
- 
-FeaturePlot(MSCs, reduction = "MSC_UMAP_dim30", features = c("LYVE1", "PROX1", "PDPN"), pt.size = 0.1, max.cutoff = 'q99', coord.fixed = TRUE, cols=brewer.pal(n = 100, name = "Reds")) & NoAxes()
-
-# Supplemental Figure S4C - CSF3 -----
+# Supplemental Figure S4A - CSF3 -----
 p1 <- VlnPlot(combined, features = c("CSF3"), pt.size = 1,  sort = TRUE) + NoLegend()
 ggsave(p1, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelD_GCSF_markers.pdf", device = "pdf", height = 5, width = 12)
 
@@ -656,13 +642,7 @@ p1 <- FeaturePlot(combined, max.cutoff = 'q99', features = c("CSF3"), coord.fixe
 p1_raster <- rasterize(p1, dpi = 300)
 ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelD_CSF3_UMAP.pdf", device = "pdf", height = 5, width = 7)
 
-# Figure 2B - Dot Plot showing key DEGs between MSC subsets -----
-DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
-ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelB_DotPlot_MCS_DEGs.pdf',
-       device = 'pdf', width = 10, height = 3.5)
-VlnPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
-
-# Not a figure - but sorting strategy justification -----
+# Not a figure - but sorting strategy justification, related to Fig S3E -----
 DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("PTPRC","GYPA", "CD38","CDH5", "PDPN", "NCAM1", "LEPR", "THY1"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
 
 # Supplemental Table 2 - calculate DEGs between MSC and Endo subsets ----
@@ -679,7 +659,7 @@ p1 <- DotPlot(MSCs, group.by = 'cluster_anno_l2', features = c("NGFR", "MCAM", "
 ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelB_DotPlot_MCS_DEGs.eps',
        device = 'pdf', width = 10, height = 3.5)
 
-# Figure 2D Make dot plot of DEGs between SEC and AEC -----
+# Figure 2H Make dot plot of DEGs between SEC and AEC -----
 Endo_markers <- FindMarkers(Endo, group.by = 'cluster_anno_l2', ident.1 = "AEC", ident.2 = "SEC")
 Endo_markers$gene_name <- rownames(Endo_markers)
 Endo_markers%>% 
@@ -690,41 +670,15 @@ Endo_markers  %>%
 p1 <- DotPlot(Endo, group.by = 'cluster_anno_l2', features = c("CDH5", "CD34", "KDR","PODXL", "ICAM2", rownames(top10_AEC), "NR2F2", "EPHB4", rownames(top10_SEC)), scale = FALSE,  cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
 ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelD_DotPlot_BMEC_DEGs.pdf', width = 10, height = 3.5)
 
-# Reference Map Other MSC Datasets to Our Reference -----
-# Figure 2F - Reference Map DeJong MSCs ----- 
-# data first published https://pubmed.ncbi.nlm.nih.gov/34017122/) 
-MSCs <- RunUMAP(MSCs, dims = 1:50, reduction = "MSC_pca", reduction.name = "MSC_UMAP_dim50", return.model = TRUE) # rerun find umap to return the umap model
+# Figure 3A - Plot Notable Putative Hematopoietic Supportive Factors ----
+cytokines <- c("TGFB1","TNFRSF11B","CDH2","SPP1", "DLL1", "DLL4", "JAG1", "JAG2","SELE", "SELP","SELPLG","FLT3LG", "CSF1", "CXCL12", "KITLG","VCAM1", "TNFSF11", "IL6","IL7","PTN", "FGF1", "FGF2","NGF", "ANGPT1", "ANGPT2", "IGF1")
+mesenchymal_cell_types <-  c("Adipo-MSC","THY1+ MSC","Fibro-MSC","OsteoFibro-MSC","Osteo-MSC","Osteoblast", "SEC", "AEC", "VSMC") # need to reload the original untransformed combined object
+mes <- subset(combined, cluster_anno_l2 %in% mesenchymal_cell_types)
+mes$cluster_anno_l2 <- factor(mes$cluster_anno_l2, levels =c("Fibro-MSC","OsteoFibro-MSC","Osteo-MSC","Osteoblast","Adipo-MSC","THY1+ MSC","AEC", "SEC", "VSMC"))
+p1 <- DotPlot(mes,group.by = "cluster_anno_l2", scale = FALSE,  features = cytokines, cluster.idents = FALSE) & RotatedAxis() & scale_color_viridis(option = "plasma")
+ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure3/panels/PanelA_DotPlot_SupportiveFactors_v3.pdf', width = 10, height = 3.5)
 
-DeJong_MSCs <- readRDS(file = "~/Documents/NBM_Microenvironment/NBM_Atlas_scRNA/Final_scRNA_Analysis/Objects_To_RefMap/DeJong_MSCs.RDS")
-anchors <- FindTransferAnchors(
-  reference = MSCs,
-  query = DeJong_MSCs,
-  normalization.method = "LogNormalize",
-  reference.reduction = "MSC_pca",
-  dims = 1:50
-)
-DeJong_MSCs <- MapQuery(
-  anchorset = anchors,
-  query = DeJong_MSCs,
-  reference = MSCs,
-  refdata = list(
-    MSC_refmap = "cluster_anno_l2"
-  ),
-  reference.reduction = "MSC_pca", 
-  reduction.model = "MSC_UMAP_dim50"
-)
-
-DimPlot(DeJong_MSCs, reduction = "umap", group.by = "predicted.MSC_refmap", label = TRUE, label.size = 3, repel = TRUE) + NoLegend()
-DimPlot(DeJong_MSCs, reduction = "ref.umap", group.by = "predicted.MSC_refmap", label = TRUE, label.size = 3, repel = TRUE) + NoLegend()
-
-p1 <- ggplot(DeJong_MSCs@meta.data, aes(fill=predicted.MSC_refmap, x=orig.ident)) + 
-  geom_bar(position="fill", stat="count") + theme_minimal() + RotatedAxis() +
-  ylab("Percentage of Total MSCs") + xlab("Sample") + scale_fill_manual(values=cal2_cols, limits=force) # limits=force drops unused levels from the legend
-
-ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelF_StackedBar_DeJongMSCs.pdf',width = 5, height = 5)
-
-# Repeat for Fetal BM MSCs
-# Figure 2F Fetal MSC Reference Mapping ------
+# Figure S4B Fetal MSC Reference Mapping ------
 # With fetal bone marrow
 Convert("fig1b_fbm_scaled_gex_updated_dr_20210104.h5ad", dest = "h5seurat", overwrite = TRUE) # Convert h5ad obj from Jardine paper to seurat
 fbm <- LoadH5Seurat("~/Documents/NBM_Microenvironment/NBM_Atlas_scRNA/Final_scRNA_Analysis/Objects_To_RefMap/fig1b_fbm_scaled_gex_updated_dr_20210104.h5seurat")
@@ -758,14 +712,19 @@ p2 <- ggplot(fbm_stroma_MSC@meta.data, aes(fill=predicted.MSC_refmap, x=orig.ide
 plot_grid(p1+p2)
 ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure2/panel/PanelG_StackedBar_Fetal_MSCs.pdf',width = 5, height = 5)
 
+# Supplemental Figure S4E - Lymphatic Endothelial cell markers ----
+p1 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("LYVE1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
+p1_raster <- rasterize(p1, dpi = 300)
+ggsave(p1_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_LYVE1.pdf", device = "pdf", height = 5, width = 7)
+p2 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PROX1"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
+p2_raster <- rasterize(p2, dpi = 300)
+ggsave(p2_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PROX1.pdf", device = "pdf", height = 5, width = 7)
+p3 <- FeaturePlot(Endo, reduction = "Endo_UMAP_dim30", features = c("PDPN"), pt.size = 0.1, max.cutoff = 'q99', cols=brewer.pal(n = 100, name = "Reds"), coord.fixed = TRUE, ncol = 3) & NoAxes()
+p3_raster <- rasterize(p3, dpi = 300)
+ggsave(p3_raster, filename = "~/Documents/Manuscripts/NBM_Atlas/Figures/Supplemental_Figures/Related_to_Figure2/PanelC_LEC_markers_PDPN.pdf", device = "pdf", height = 5, width = 7)
 
-# Figure 3A - Plot Notable Putative Hematopoietic Supportive Factors ----
-cytokines <- c("TGFB1","TNFRSF11B","CDH2","SPP1", "DLL1", "DLL4", "JAG1", "JAG2","SELE", "SELP","SELPLG","FLT3LG", "CSF1", "CXCL12", "KITLG","VCAM1", "TNFSF11", "IL6","IL7","PTN", "FGF1", "FGF2","NGF", "ANGPT1", "ANGPT2", "IGF1")
-mesenchymal_cell_types <-  c("Adipo-MSC","THY1+ MSC","Fibro-MSC","OsteoFibro-MSC","Osteo-MSC","Osteoblast", "SEC", "AEC", "VSMC") # need to reload the original untransformed combined object
-mes <- subset(combined, cluster_anno_l2 %in% mesenchymal_cell_types)
-mes$cluster_anno_l2 <- factor(mes$cluster_anno_l2, levels =c("Fibro-MSC","OsteoFibro-MSC","Osteo-MSC","Osteoblast","Adipo-MSC","THY1+ MSC","AEC", "SEC", "VSMC"))
-p1 <- DotPlot(mes,group.by = "cluster_anno_l2", scale = FALSE,  features = cytokines, cluster.idents = FALSE) & RotatedAxis() & scale_color_viridis(option = "plasma")
-ggsave(p1, filename = '~/Documents/Manuscripts/NBM_Atlas/Figures/Figure3/panels/PanelA_DotPlot_SupportiveFactors_v3.pdf', width = 10, height = 3.5)
+ 
+FeaturePlot(MSCs, reduction = "MSC_UMAP_dim30", features = c("LYVE1", "PROX1", "PDPN"), pt.size = 0.1, max.cutoff = 'q99', coord.fixed = TRUE, cols=brewer.pal(n = 100, name = "Reds")) & NoAxes()
 
 
 
@@ -796,7 +755,7 @@ c
 
 subset(combined_AUC_myeloid@meta.data, cluster_anno_l2 == "Neutrophil")$HALLMARK_HYPOXIA
 
-# Supplemental Figure S5B Distance to Bone ----
+# Supplemental Figure S7B Distance to Bone ----
 cn_ranks <- read_csv("~/Documents/NBM_Microenvironment/NBM_Atlas_CODEX_Samples/Non-Cell Microenvironment Analysis/combined_neighbor.csv")
 
 nbs_names <- c("HSC / Mature Myeloid", "Erythroid/Myeloid", "PC/Arteriolar", "Erythroid", "Arteriolar", "Erythroid", "Lymphoid", "Erythroid/Myeloid/Lymphoid", "Early Myeloid / Endosteal", "Myeloid/Lymphoid", "HSPC/Intermediate Myeloid", "Erythroid/Myeloid/Lymphoid", "Erythroid/Myeloid", "Early Myeloid / Arteriolar", "Peri-Arterolar Lymphoid")
