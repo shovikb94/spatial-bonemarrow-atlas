@@ -640,7 +640,7 @@ Heatmap(t(scale(t(avg[,cell_order]))), name = "mat", rect_gp = gpar(col = "black
 # immune.filtered$cluster_anno_l2 <- factor(immune.filtered$cluster_anno_l2, levels = c("HSC", "SPINK2+ HSPC", "HSPC", "GMP", "GMP/Myeloblast", "Early Myeloid Progenitor", "Intermediate Myeloid", "Mature Myeloid", "Monocytes", "Non-Classical Monocyte", "Macrophages", "pDC", "CLP", "Immature_B_Cell", "B-Cells", "CD4+ T-Cell", "CD8+ T-Cell", "Plasma Cells", "MEP/Early Erythroblast", "CD34+ CD61+", "Erythroblast", "Erythroid", "GATA1neg_Mks", "GATA1pos_Mks", "MSC", "THY1+ MSC", "Adipocyte", "Endosteal", "AEC", "SEC", "VSMC", "Schwann Cells", "Artifact","Autofluorescent","CD44+ Undetermined", "Undetermined"))
 
 
-# Supplemental Figure S5C - coarse frequency barplot ----
+# Supplemental Figure S6C - coarse frequency barplot ----
 immune.filtered$cluster_anno_coarse <- droplevels(immune.filtered$cluster_anno_coarse)
 immune.filtered$cluster_anno_coarse <- factor(immune.filtered$cluster_anno_coarse, levels = c("HSPC", "Myeloid", "Monocytes", "Macrophage", "pDC", "Erythroid", "Megakaryocyte", "Lymphoid", "Adipocyte", "Adipo-MSC", "Endosteal", "SEC", "AEC", "VSMC", "Schwann Cells"))
 
