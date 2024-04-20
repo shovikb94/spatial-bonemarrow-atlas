@@ -109,7 +109,7 @@ DeJong_MSCs <- MapQuery(
 
 
 
-# Figure 2I/G Fetal MSC Reference Mapping (Supplemental Figure S2G) ------
+# Figure 2I Fetal MSC Reference Mapping (Supplemental Figure S3C) ------
 # With fetal bone marrow
 library(SeuratDisk)
 Convert("fig1b_fbm_scaled_gex_updated_dr_20210104.h5ad", dest = "h5seurat", overwrite = TRUE) # Convert h5ad obj from Jardine paper to seurat
@@ -151,7 +151,7 @@ p2 <- ggplot(fbm_stroma_MSC@meta.data, aes(fill=predicted.MSC_refmap, x=orig.ide
 plot_grid(p1+p2)
 ggsave(plot_grid(p1+p2), filename = '/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/ExternalDatasets_Revisions/figures/PanelG_StackedBar_Fetal_MSCs.pdf',width = 7, height = 3)
 
-# Map Triana MSCs ----
+# Map Triana MSCs (Figure 2I) ----
 
 Triana_FullData <- readRDS(file = "/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/ExternalDatasets_Revisions/data/Triana_2021_NatCellBio/Healthy.rds")
 table(levels(as.factor(Triana_FullData$CellTypes)))
@@ -184,7 +184,7 @@ DotPlot(Triana_MSCs, features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP
 
 
 
-# Map eLife Li MSCs ----
+# Map eLife Li MSCs (Figure 2I) ----
 
 # Load the Matrix package
 library(Matrix)
@@ -276,7 +276,7 @@ table(Li_MSCs$predicted_cluster_anno_l2)
 DotPlot(Li_MSCs, group.by = "predicted.MSC_refmap", features = c("NES", "CSPG4", "LEPR", "COL1A1", "WIF1", "SPP1", "MGP", "CDH2"), scale = FALSE, cluster.idents = TRUE) + scale_color_viridis(option = 'plasma') + RotatedAxis()
 
 
-# Map iScience Ennis MSCs ----
+# Map iScience Ennis MSCs (Figure 2I) ----
 
 ennis_data <- readRDS("/mnt/isilon/tan_lab/sussmanj/Temp/BoneMarrow_scRNA/Datasets/Ennis_Atlas_Seurat.rds")
 ennis_data@assays$RNA@counts <- ennis_data@assays$RNA@data
@@ -416,114 +416,6 @@ table(subset(Wang_oa@meta.data, subset = predicted.MSC_refmap %in% c("Adipo-MSC"
 752/(752+1+4) #0.99 adipo-msc
 
 (938+752) / (938+118+7+52 + 752 + 1 +4) # total dataset 0.90 adipo-MSC
-
-# Map Ennis iScience MSCs ----
-
-Ennis_FullData <- readRDS(file = "~/Documents/NBM_Microenvironment/NBM_Atlas_scRNA/Final_scRNA_Analysis/ExternalDataset_Mapping/data/Wang_2021_IntJBiolSci/GSE147287_RAW/")
-table(levels(as.factor(Triana_FullData$CellTypes)))
-Triana_MSCs <- subset(Triana_FullData, subset = CellTypes == "Mesenchymal cells_1" | CellTypes == "Mesenchymal cells_2")
-remove(Triana_FullData)
-
-anchors <- FindTransferAnchors(
-  reference = MSCs,
-  query = Triana_MSCs,
-  normalization.method = "LogNormalize",
-  reference.reduction = "MSC_pca", k.filter = 10, k.score = 17,
-  dims = 1:50
-)
-Triana_MSCs <- MapQuery(
-  transferdata.args = list(k.weight = 30), 
-  anchorset = anchors,
-  query = Triana_MSCs, 
-  reference = MSCs,
-  refdata = list(
-    MSC_refmap = "cluster_anno_l2"
-  ),
-  reference.reduction = "MSC_pca", 
-  reduction.model = "MSC_UMAP_dim50",
-)
-
-p1 <- ggplot(Triana_MSCs@meta.data, aes(fill=predicted.MSC_refmap, x=orig.ident)) + 
-  geom_bar(position="fill", stat="count") + theme_minimal() + RotatedAxis() +
-  ylab("Percentage of Total MSCs") + xlab("Sample") + scale_fill_manual(values=cal2_cols, limits=force) # limits=force drops unused levels from the legend
-
-# map our own BM aspirate data
-# read in 10x file
-SB11_NS <- Read10X(data.dir = "/mnt/isilon/tan_lab/bandyopads/SB11_BMmesenchyme_pilot/CellRanger/SB11_NegSel_scRNA/outs/filtered_feature_bc_matrix/")
-SB11_PS <- Read10X(data.dir = "/mnt/isilon/tan_lab/bandyopads/SB11_BMmesenchyme_pilot/CellRanger/SB11_PosSel_scRNA/outs/filtered_feature_bc_matrix/")
-SB16_NS <- Read10X(data.dir = "/mnt/isilon/tan_lab/bandyopads/SB16_AML_scRNA_BMmesenchyme_pilot/SB16_Normal_BM/outs/filtered_feature_bc_matrix/")
-
-
-# create seurat obj and process
-SB11_NS <- CreateSeuratObject(counts = SB11_NS, project = "SB11_NS", min.cells = 3, min.features = 100)
-SB11_NS
-SB11_PS <- CreateSeuratObject(counts = SB11_PS, project = "SB11_PS", min.cells = 3, min.features = 100)
-SB11_PS
-SB16_NS <- CreateSeuratObject(counts = SB16_NS, project = "SB16_NS", min.cells = 3, min.features = 100)
-SB16_NS
-
-ob.list <- list(SB11_NS, SB11_PS, SB16_NS)
-for (i in 1:length(ob.list)) {
-  ob.list[[i]][["percent.mt"]] <- PercentageFeatureSet(ob.list[[i]], pattern = "^MT-")
-  ob.list[[i]] <- subset(ob.list[[i]], subset = nFeature_RNA > 100 & nFeature_RNA < 10000 & percent.mt < 10)
-  # ob.list[[i]] <- subset(ob.list[[i]], cells = cells.use)
-  ob.list[[i]] <- NormalizeData(ob.list[[i]])
-  ob.list[[i]] <- FindVariableFeatures(ob.list[[i]])
-  ob.list[[i]] <- ScaleData(ob.list[[i]])
-  ob.list[[i]] <- RunPCA(ob.list[[i]], features = VariableFeatures(object = ob.list[[i]]))
-  ob.list[[i]] <- RunUMAP(ob.list[[i]], dims = 1:30, reduction.name = "UMAP_dim30", reduction.key = "UMAP_dim30_")
-  ob.list[[i]] <- RunUMAP(ob.list[[i]], dims = 1:50, reduction.name = "UMAP_dim50", reduction.key = "UMAP_dim50_")
-  ob.list[[i]] <- FindNeighbors(ob.list[[i]], dims = 1:30)
-  ob.list[[i]] <- FindClusters(ob.list[[i]], resolution = 1)
-  ob.list[[i]] <- FindDoublets(ob.list[[i]], PCs = 1:30, sct = FALSE, exp_rate = (length(colnames(ob.list[[i]]))/125000))
-}
-
-SB11_NS <- ob.list[[1]]
-SB11_PS <- ob.list[[2]]
-SB16_NS <- ob.list[[3]]
-
-combined_aspirate <- merge(x = SB11_NS, y = c(SB11_PS, SB16_NS), add.cell.ids = c("SB11_NS", "SB11_PS", "SB16_NS"), project = "SB_Aspirate")
-
-ob.list <- list(combined_aspirate)
-
-for (i in 1:length(ob.list)) {
-  ob.list[[i]] <- subset(ob.list[[i]], subset = Doublet_Singlet == "Singlet")
-  ob.list[[i]] <- NormalizeData(ob.list[[i]])
-  ob.list[[i]] <- FindVariableFeatures(ob.list[[i]])
-  ob.list[[i]] <- ScaleData(ob.list[[i]])
-  ob.list[[i]] <- RunPCA(ob.list[[i]], features = VariableFeatures(object = ob.list[[i]]))
-  ob.list[[i]] <- RunUMAP(ob.list[[i]], dims = 1:30, reduction.name = "UMAP_dim30", reduction.key = "UMAP_dim30_")
-  ob.list[[i]] <- RunUMAP(ob.list[[i]], dims = 1:50, reduction.name = "UMAP_dim50", reduction.key = "UMAP_dim50_")
-  ob.list[[i]] <- FindNeighbors(ob.list[[i]], dims = 1:30)
-  ob.list[[i]] <- FindClusters(ob.list[[i]], algorithm = 2, resolution = 1.5)
-}
-
-
-combined_aspirate <- ob.list[[1]] 
-
-anchors <- FindTransferAnchors(
-  reference = combined,
-  query = combined_aspirate,
-  normalization.method = "LogNormalize",
-  reference.reduction = "pca",
-  dims = 1:50
-)
-combined_aspirate <- MapQuery(
-  anchorset = anchors,
-  query = combined_aspirate, 
-  reference = combined,
-  refdata = list(
-    MSC_refmap = "cluster_anno_l2"
-  ),
-  reference.reduction = "pca", 
-  reduction.model = "UMAP_dim30",
-)
-
-p1 <- ggplot(subset(combined_aspirate@meta.data, subset = predicted.MSC_refmap %in% c("Adipo-MSC", "THY1+ MSC", "Osteo-MSC", "Osteoblast", "OsteoFibro-MSC", "Fibro-MSC")), aes(fill=predicted.MSC_refmap, x=orig.ident)) + 
-  geom_bar(position="fill", stat="count") + theme_minimal() + RotatedAxis() +
-  ylab("Percentage of Total MSCs") + xlab("Sample") + scale_fill_manual(values=cal2_cols, limits=force) # limits=force drops unused levels from the legend
-
-saveRDS(combined_aspirate, "/mnt/isilon/tan_lab/bandyopads/SB66_scRNASeq_S2/ExternalDatasets_Revisions/mapped_mscs/combined_aspirate.RDS")
 
 
 
