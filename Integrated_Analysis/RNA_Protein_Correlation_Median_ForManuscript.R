@@ -1,4 +1,4 @@
-# script to measure scRNA and CODEX correlation in the NBM manuscript
+# script to measure scRNA and CODEX correlation in the NBM manuscript and make Figure S6G
 library(Seurat)
 library(ggplot2)
 library(dplyr)
@@ -323,5 +323,5 @@ p <- ggplot(plot_data, aes(x = CODEX_Cell_Type, y = Correlation, color = RNA_Cel
 
 # Print the plot
 print(p)
-#Figure S4G
+#Figure S6G
 ggsave("CODEX_scRNA_Seq_Correlation_Plot_Adjusted_medians.pdf", p, width = 16, height = 8)
