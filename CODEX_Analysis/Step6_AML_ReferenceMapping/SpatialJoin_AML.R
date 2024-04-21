@@ -1,4 +1,6 @@
-# spatial join of qupath data to mesmer
+# Script for spatial join of qupath data to mesmer (Used in Figures 7, S10-S11)
+# This script is used because the classification functions for NPM1 mutant blasts are done directly in QuPath. We found the most straightforward
+# way to merge this workflow with Seurat was to add the labels back in using a spatial join on coordinates
 
 library(sf)
 library(readr)
