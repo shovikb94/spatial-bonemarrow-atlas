@@ -1,3 +1,6 @@
+# Script for taking mapped AML and NSM objects and exporting for neighborhood analysis, as well as making figures relevant to AML analysis
+# in Figure 7. 
+
 library(ComplexHeatmap)
 library(readr)
 library(dplyr)
@@ -83,8 +86,6 @@ AMLonly.dx_mapped <- subset(AMLonly.combined_mapped, Sample_Timepoint == "Dx")
 AMLonly.posttx_mapped <- subset(AMLonly.combined_mapped, Sample_Timepoint == "Post-Tx")
 write.csv(x = AMLonly.dx_mapped@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/AML_only_combined_annotated_ForNeighborhoods_112023_blast_separated_DxOnly.csv")
 write.csv(x = AMLonly.posttx_mapped@meta.data, file = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/For_Neighborhoods/AML_only_combined_annotated_ForNeighborhoods_112023_blast_separated_PostTxOnly.csv")
-
-
 
 # repeat for NSM (need to have mapped per Step 5)
 NSM.combined <- subset(NSM.combined, subset = classified_cluster_anno_l2 != "Artifact" & classified_cluster_anno_l2 != "CD44+ Undetermined" & classified_cluster_anno_l2 != "Undetermined" & classified_cluster_anno_l2 != "Autofluorescent")
@@ -238,8 +239,6 @@ data_mrd <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mappe
 
 t.test(data_mrd$GATA1,data_dx$GATA1) # t=36.553, p < 2.2e-16
 
-
-
 # Figure 7G - Neighborhood Membership Frequency by Sample Type and Timepoint ----
 neighborhood_order <- c(0,2,3,4,5,6,7,8,9,10,11,13, 1,12,14)
 df_frequency_df$neighborhood10 <- factor(df_frequency_df$neighborhood10, levels = neighborhood_order)
@@ -315,7 +314,7 @@ p2 <- ggplot(neighborhoods, aes(x = neighborhood_named, fill=orig.ident)) +
   geom_bar(position="fill", stat="count") + theme_minimal() + RotatedAxis() +
   ylab("Percentage of Total MSCs") + xlab("Sample") # limits=force drops unused levels from the legend
 
-# Supplemental Figure S7E -----
+# Supplemental Figure S11B = plot nb frequencies in dx and post-tx -----
 library(cowplot)
 plot_grid(p1,p2)
 
@@ -338,31 +337,7 @@ data_wt <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped
 t.test(data_mut$NPM1C,data_wt$NPM1C) # t=219.59, p < 2.2e-16
 
 
-# Analyze HIF1a levels Supplemental Figure S7H ----
-cal2_cols_npm1 <- c(cal2_cols, "#FA8072")
-names(cal2_cols_npm1) <- c(cell_order, "NPM1 Mutant Blast")
-
-p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("Mature Myeloid", "Intermediate Myeloid", "Early Myeloid Progenitor","GMP/Myeloblast","GMP", "NPM1 Mutant Blast")), features = c("codex_HIF1A"), slot = "data", pt.size = 0 , cols = cal2_cols, group.by = "classified_cluster_anno_l2", sort = TRUE) + NoLegend()
-#ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_HIF1A_VlnPlot.pdf", height = 5, width = 7.5)
-
-# BCL2 levels Supplemental Figure S7I ----
-p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), split.by = "Sample_Name", cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"), features = c("codex_BCL2"), slot = "data", pt.size = 0, group.by = "classified_cluster_anno_l2", sort = TRUE) 
-ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_BCL2_VlnPlot.pdf", height = 5, width = 7.5)
-
-# Complex IV levels Supplemental Figure S7J ----
-p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), group.by = "Sample_Name", features = c("codex_OXPHOS"), slot = "data", pt.size = 0, cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"),  sort = FALSE) 
-ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_ComplexIV_VlnPlot.pdf", height = 5, width = 7.5)
-
-# t-tests for supplemental figure S7 ----
-data_dx <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Dx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
-data_mrd <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Post-Tx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
-
-t.test(data_mrd$GATA1,data_dx$GATA1) # t=36.553, p < 2.2e-16
-t.test(data_mrd$BCL2,data_dx$BCL2) # t=-35.371, p < 2.2e-16
-t.test(data_mrd$OXPHOS,data_dx$OXPHOS) # t=24.722, p < 2.2e-16
-
-
-# Supplemental Figure S7G AML Bone Proximity Boxplot----
+# Supplemental Figure S11D AML Bone Proximity Boxplot----
 ranks_idx <- read_csv("~/Documents/Manuscripts/NBM_Atlas/ReviewerComments/AML_StructuralAnalysis_SuppFigS7G/combined_aml_idxneighbourhood.csv")
 ranks_idx$neighbourhood <- ranks_idx$neighbourhood+1
 ranks_idx$neighbourhood <- as.factor(ranks_idx$neighbourhood)
@@ -419,6 +394,33 @@ metap_wide_sumz_corplot <- metap_wide_sumz[,-1]
 rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$neighbourhood
 
 plot_grid(p1,p2, ncol = 1)
+
+
+# Analyze HIF1a levels Supplemental Figure S11E ----
+cal2_cols_npm1 <- c(cal2_cols, "#FA8072")
+names(cal2_cols_npm1) <- c(cell_order, "NPM1 Mutant Blast")
+
+p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("Mature Myeloid", "Intermediate Myeloid", "Early Myeloid Progenitor","GMP/Myeloblast","GMP", "NPM1 Mutant Blast")), features = c("codex_HIF1A"), slot = "data", pt.size = 0 , cols = cal2_cols, group.by = "classified_cluster_anno_l2", sort = TRUE) + NoLegend()
+#ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_HIF1A_VlnPlot.pdf", height = 5, width = 7.5)
+
+# BCL2 levels Supplemental Figure S11F ----
+p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), split.by = "Sample_Name", cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"), features = c("codex_BCL2"), slot = "data", pt.size = 0, group.by = "classified_cluster_anno_l2", sort = TRUE) 
+ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_BCL2_VlnPlot.pdf", height = 5, width = 7.5)
+
+# Complex IV levels Supplemental Figure S11G ----
+p1 <- VlnPlot(subset(All.combined_mapped,classified_cluster_anno_l2 %in% c("NPM1 Mutant Blast")), group.by = "Sample_Name", features = c("codex_OXPHOS"), slot = "data", pt.size = 0, cols = c("#87CEEB", "#20639B", "#3CAEA3","#F6D55C", "#ED553B"),  sort = FALSE) 
+ggsave(p1, device = "pdf",filename = "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/ReferenceMap_AML_Step6/Figures/SuppS6C_NPM1_ComplexIV_VlnPlot.pdf", height = 5, width = 7.5)
+
+# t-tests for supplemental figure S7 ----
+data_dx <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Dx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
+data_mrd <- as.data.frame(t(as.data.frame(GetAssayData(subset(All.combined_mapped, subset = Sample_Timepoint == "Post-Tx" & Adjusted_Class == "NPM1_Mutant"), slot = "data", assay = "CODEX"))))
+
+t.test(data_mrd$GATA1,data_dx$GATA1) # t=36.553, p < 2.2e-16
+t.test(data_mrd$BCL2,data_dx$BCL2) # t=-35.371, p < 2.2e-16
+t.test(data_mrd$OXPHOS,data_dx$OXPHOS) # t=24.722, p < 2.2e-16
+
+
+
 
 
 
