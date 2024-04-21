@@ -108,7 +108,7 @@ rownames(metap_wide_sumz_corplot) <- metap_wide_sumz$celltype
 metap_wide_sumz_corplot
 ## can use this to_plot table to check significane of any to_from comparison 
 
-# Supplemental Figure S9B chord diagram ----
+# Supplemental Figure S9C chord diagram ----
 sum_ranks_ct_mat_trunc <- sum_ranks_ct_mat[c(1,2,4,5,7,10,13,20,23,26,27,28),]
 summarized_ranks_sig <- summarized_ranks %>% left_join(metap,by = c("celltype" = "celltype", "structure" = "structure") )
 summarized_ranks_sig_trunc <- summarized_ranks_sig %>% dplyr::filter(celltype %in% c("SPINK2+ HSPC", "HSPC", "GMP_Myeloblast", "Early Myeloid Progenitor", "Mature Myeloid", "Macrophages", "B-Cells", "Erythroid", "MSC", "AEC", "SEC") & meta_p <0.05)
@@ -118,7 +118,7 @@ names(structure_cols) <- levels(as.factor(ranks$structure))
 chord_to_plot <- data.frame(summarized_ranks_sig_trunc$structure, summarized_ranks_sig_trunc$celltype, summarized_ranks_sig_trunc$median_norm_rank)
 chordDiagram(chord_to_plot, grid.col = c(cal2_cols,structure_cols), transparency = 0.2)
 
-# Supplemental Figure S10G AML -----
+# Supplemental Figure S11D AML -----
 ranks_idx <- read_csv("~/Documents/Manuscripts/NBM_Atlas/ReviewerComments/AML_StructuralAnalysis_SuppFigS7G/combined_aml_idxneighbourhood.csv")
 ranks_idx$neighbourhood <- ranks_idx$neighbourhood+1
 ranks_idx$neighbourhood <- as.factor(ranks_idx$neighbourhood)
