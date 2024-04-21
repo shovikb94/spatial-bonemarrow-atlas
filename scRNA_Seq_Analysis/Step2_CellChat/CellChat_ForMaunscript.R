@@ -79,6 +79,21 @@ netVisual_individual(cellchat, signaling = pathways.show,  remove.isolate = TRUE
 pathways.show <- "SELE"
 netVisual_individual(cellchat, signaling = pathways.show,  remove.isolate = TRUE, pairLR.use = "SELE_CD44", sources.use = sources.use, targets.use = targets_hspc, vertex.receiver = vertex.receiver)
 
+## Plot Signaling Biaxial Plot Figure 3D ----
+netAnalysis_signalingRole_scatter(cellchat, color.use = scrna_cal2_cols,  font.size = 14, do.label = TRUE)
+
+## Plot Pathway Level Heatmaps Figure 3E-F ----
+pathways.show <- c("CXCL","PTN", "KIT", "ANGPT", "CSF","NOTCH", "FGF","PDGF","VWF", "NGF", "NCAM","RANKL","CSPG4","SELE", "SELPLG","IL1","IL2","IL6","TNF","FLT3","TGFb", "MHC-I", "MHC-II", "WNT", "VCAM", "COLLAGEN")
+ht1 <- netAnalysis_signalingRole_heatmap(cellchat, pattern = "outgoing", signaling =  pathways.show, color.heatmap = "Purples", color.use = scrna_cal2_cols[cell_order])
+ht2 <- netAnalysis_signalingRole_heatmap(cellchat, pattern = "incoming", signaling =  pathways.show, color.heatmap = "Purples", color.use = scrna_cal2_cols[cell_order])
+ht1 + ht2
+
+## Plot NMF Results Figure 3G, S4F ----
+selectK(cellchat, pattern = "outgoing")
+nPatterns = 7
+cellchat <- identifyCommunicationPatterns(cellchat, pattern = "outgoing", k = nPatterns, width = 14, height = 24, color.use = scrna_cal2_cols[cell_order])
+cellchat <- identifyCommunicationPatterns(cellchat, pattern = "incoming", k = nPatterns, width = 14, height = 24, color.use = scrna_cal2_cols[cell_order])
+
 # Add choird diagrams for specific interactions to validate later Supplemental Figure S8B ---- 
 pathways.show <- "COLLAGEN"
 sources.use <- c("Osteoblast")
@@ -107,20 +122,9 @@ netVisual_individual(cellchat, signaling = pathways.show,  remove.isolate = TRUE
 
 
 
-## Plot Signaling Biaxial Plot Figure 3D ----
-netAnalysis_signalingRole_scatter(cellchat, color.use = scrna_cal2_cols,  font.size = 14, do.label = TRUE)
 
-## Plot Pathway Level Heatmaps Figure 3E-F ----
-pathways.show <- c("CXCL","PTN", "KIT", "ANGPT", "CSF","NOTCH", "FGF","PDGF","VWF", "NGF", "NCAM","RANKL","CSPG4","SELE", "SELPLG","IL1","IL2","IL6","TNF","FLT3","TGFb", "MHC-I", "MHC-II", "WNT", "VCAM", "COLLAGEN")
-ht1 <- netAnalysis_signalingRole_heatmap(cellchat, pattern = "outgoing", signaling =  pathways.show, color.heatmap = "Purples", color.use = scrna_cal2_cols[cell_order])
-ht2 <- netAnalysis_signalingRole_heatmap(cellchat, pattern = "incoming", signaling =  pathways.show, color.heatmap = "Purples", color.use = scrna_cal2_cols[cell_order])
-ht1 + ht2
 
-## Plot NMF Results Figure 3G, S4E ----
-selectK(cellchat, pattern = "outgoing")
-nPatterns = 7
-cellchat <- identifyCommunicationPatterns(cellchat, pattern = "outgoing", k = nPatterns, width = 14, height = 24, color.use = scrna_cal2_cols[cell_order])
-cellchat <- identifyCommunicationPatterns(cellchat, pattern = "incoming", k = nPatterns, width = 14, height = 24, color.use = scrna_cal2_cols[cell_order])
+
 
 
 
@@ -134,6 +138,7 @@ Heatmap(scale(t(weights)))
 library(ComplexHeatmap)
 count <- cellchat@net$count
 Heatmap(scale(t(count)))
+
 
 
 
