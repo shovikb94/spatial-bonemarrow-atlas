@@ -106,7 +106,7 @@ neighborhoods %>% dplyr::filter(orig.ident == "SB67_NBM31_H32_CODEX_Mesmer") -> 
 write.csv(H32_nbs, "/mnt/isilon/tan_lab_imaging/Analysis/bandyopads/NBM_CODEX_Atlas/Combined_Analysis/Seurat/Neighborhood_Analysis_Step4/sample_mask_input/H32_nbs.csv")
 
 
-# Figure 5E HIF1a analysis by neighborhood for EMP ----
+# Figure 5D HIF1a analysis by neighborhood for EMP ----
 rownames(neighborhoods) <- neighborhoods$`Unnamed: 0`
 immune.filtered <- AddMetaData(object = immune.filtered, metadata = neighborhoods$neighborhood10, col.name = "Neighborhood")
 # Rename neighborhoods based on above manual annotation
