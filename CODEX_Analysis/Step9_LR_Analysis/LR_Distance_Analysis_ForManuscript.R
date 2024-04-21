@@ -1,3 +1,5 @@
+# Script for performing distance calculation and figure making in Figure S8C
+
 library(Seurat)
 library(tidyverse)
 library(patchwork)
