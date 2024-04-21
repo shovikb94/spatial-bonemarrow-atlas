@@ -132,7 +132,7 @@ correlation_df <- data.frame(
 # Calculate the median correlation coefficient
 median_correlation <- median(correlation_results, na.rm = TRUE)
 
-# Supplemental Figure S8B NSM vs NBM Correlation ----
+# Supplemental Figure S10E NSM vs NBM Correlation ----
 p <- ggplot(correlation_df, aes(x = Neighborhood, y = Correlation)) +
   geom_point() + # Add points
   geom_hline(yintercept = median_correlation, linetype = "dashed", color = "blue") + # Add a line for the median
