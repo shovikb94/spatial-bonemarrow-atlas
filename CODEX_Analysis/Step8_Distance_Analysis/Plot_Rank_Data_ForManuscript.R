@@ -1,4 +1,5 @@
-# Script for plotting heatmap of non-cell analysis
+# Script for performing final calculations and plotting figures for structural analysis in Figure 6 and S9
+# Need to run the spatial analysis scripts first (Please see the readme.md file in this folder)
 
 library(readr)
 library(dplyr)
