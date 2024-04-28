@@ -4,7 +4,7 @@ This repository contains the code used to generate figures and perform analysis 
 **Data Availability**
 _______________________________________
 Raw and processed scRNA-Seq data can be accessed through [GSE253355](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE253355). 
-Raw and processed CODEX data can be accessed through (our repository on FigShare)[https://doi.org/10.25452/figshare.plus.c.7174914]. 
+Raw and processed CODEX data can be accessed through our repository on [FigShare](https://doi.org/10.25452/figshare.plus.c.7174914). 
 
 **Figure Manifest**
 ____________________________________
