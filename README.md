@@ -1,5 +1,5 @@
-# spatial-bonemarrow-atlas
-This repository contains the code used to generate figures and perform analysis for the manuscript titled "Transcriptomic and Spatial Proteomic Profiling Reveals the Cellular Composition and Spatial Organization of the Human Bone Marrow Microenvironment". The data from this manuscript is interactively browsable through our [Vitessce-based platform](https://cscb.research.chop.edu/index.php/bm-data).
+# Spatial Bone Marrow Atlas Codebase
+This repository contains the code used to generate figures and perform analysis for the manuscript titled "Mapping the Cellular Biogeography of Human Bone Marrow Niches Using Single-Cell Transcriptomics and Proteomic Imaging". The data from this manuscript is interactively browsable through our [Vitessce-based platform](https://cscb.research.chop.edu/index.php/bm-data).
 _______________________________________
 **Data Availability** <br />
 Raw and processed scRNA-Seq data can be accessed through [GSE253355](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE253355). 
