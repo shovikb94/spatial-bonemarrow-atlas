@@ -76,5 +76,5 @@ Figure S8C
 CODEX_Analysis/Step9_LR_Analysis/LR_Distance_Analysis_ForManuscript.R
 ________________________________
 **Acknowledgments** <br />
-Major contributions to this codebase are from Shovik Bandyopadhyay, Jonathan Sussman, David Smith, Derek Oldridge, and Kai Tan. We also acknowledge and greatly appreciate the Children's Hospital of Philadelphia's Research IS team, especially John Daniels, for their tremendous support in HPC implementation of this work. 
+Major contributions to this codebase are from Shovik Bandyopadhyay, Jonathan Sussman, Minxing Pang, David Smith, Derek Oldridge, and Kai Tan. We also acknowledge and greatly appreciate the Children's Hospital of Philadelphia's Research IS team, especially John Daniels, for their tremendous support in HPC implementation of this work. 
 
