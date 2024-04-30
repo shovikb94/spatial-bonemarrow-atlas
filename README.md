@@ -1,13 +1,13 @@
 # spatial-bonemarrow-atlas
 This repository contains the code used to generate figures and perform analysis for the manuscript titled "Transcriptomic and Spatial Proteomic Profiling Reveals the Cellular Composition and Spatial Organization of the Human Bone Marrow Microenvironment". The data from this manuscript is interactively browsable through our [Vitessce-based platform](https://cscb.research.chop.edu/index.php/bm-data).
 
-**Data Availability**
+**Data Availability** 
 _______________________________________
 Raw and processed scRNA-Seq data can be accessed through [GSE253355](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE253355). 
 Raw and processed CODEX data can be accessed through our repository on [FigShare](https://doi.org/10.25452/figshare.plus.c.7174914). 
 _______________________________________
-
-**Citation**
+**Citation** 
+_______________________________________
 If you are using code or pipelines from this repository, please consider citing our associated article: 
 --fill in upon publication--
 ____________________________________
@@ -79,5 +79,6 @@ Figure S8C
 CODEX_Analysis/Step9_LR_Analysis/LR_Distance_Analysis_ForManuscript.R
 ________________________________
 **Acknowledgments**
+________________________________
 Major contributions to this codebase are from Shovik Bandyopadhyay, Jonathan Sussman, David Smith, Derek Oldridge, and Kai Tan. We also acknowledge and greatly appreciate the Children's Hospital of Philadelphia's Research IS team, especially John Daniels, for their tremendous support in HPC implementation of this work. 
 
