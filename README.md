@@ -5,9 +5,10 @@ _______________________________________
 Raw and processed scRNA-Seq data can be accessed through [GSE253355](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE253355). 
 Raw and processed CODEX data can be accessed through our repository on [FigShare](https://doi.org/10.25452/figshare.plus.c.7174914). 
 _______________________________________
-**Citation** <br />
-If you are using code or pipelines from this repository, please consider citing our associated article: 
---fill in upon publication--
+**Citation**  <br />
+If you are using code or pipelines from this repository, please consider citing our associated article: <br />
+<br/>
+Bandyopadhyay, S., Duffy, M. P., Ahn, K. J., Sussman, J. H., Pang, M., Smith, D., Duncan, G., Zhang, I., Huang, J., Lin, Y., Xiong, B., Imtiaz, T., Chen, C.-H., Thadi, A., Chen, C., Xu, J., Reichart, M., Martinez, Z., Diorio, C., . . . Tan, K. Mapping the cellular biogeography of human bone marrow niches using single-cell transcriptomics and proteomic imaging. Cell. 2024. https://doi.org/10.1016/j.cell.2024.04.013 
 ____________________________________
 **Figure Manifest** <br />
 **General scRNA-Seq Analysis**
