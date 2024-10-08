@@ -1,0 +1,36 @@
+scRNA_cla2,Harmonized_Labels_scRNA,CODEX_cla2,Harmonized_Labels_CODEX
+HSC,Early HSPC,SPINK2+ HSPC ,Early HSPC
+MPP,HSPC,HSC,Early HSPC
+Cycling HSPC,No Match,HSPC,No Match
+MEP,MEP/Early Erythroblast,MEP/Early Erythroblast,MEP/Early Erythroblast
+Erythroblast,Erythroblast,Erythroblast,Erythroblast
+Late Erythroid,Erythroid,Erythroid,Erythroid
+RBC,Erythroid,GATA1pos_Mks,Megakaryocyte
+Megakaryocyte,Megakaryocyte,GATA1neg_Mks,Megakaryocyte
+GMP,GMP,GMP/Myeloblast,GMP
+Early Myeloid Progenitor,Early Myeloid Progenitor,GMP,GMP
+Late Myeloid,Intermediate Myeloid,Early Myeloid Progenitor,Early Myeloid Progenitor
+Neutrophil,Mature Myeloid,Intermediate Myeloid,Intermediate Myeloid
+Monocyte,Monocytes,Mature Myeloid,Mature Myeloid
+Monocyte,Monocytes,Monocytes,Monocytes
+Macrophages,Macrophages,Non-Classical Monocyte,Monocytes
+Ba/Eo/Ma,Autofluorescent,Macrophages,Macrophages
+Cycling DCs,pDC,Autofluorescent,Autofluorescent
+pDC,pDC,pDC,pDC
+CLP,CLP,CLP,CLP
+Pre-Pro B,Immature_B_Cell,Immature_B_Cell,Immature_B_Cell
+Pro-B,Immature_B_Cell,B-Cells,B_Cells
+Pre-B,Immature_B_Cell,Plasma Cells,Plasma Cells
+Mature B,B_Cells,CD4+ T-Cell,CD4+ T-Cell
+Plasma Cell,Plasma Cells,CD8+ T-Cell,CD8+ T-Cell
+CD4+ T-Cell,CD4+ T-Cell,AEC,AEC
+CD8+ T-Cell,CD8+ T-Cell,SEC,SEC
+AEC,AEC,VSMC,VSMC
+SEC,SEC,THY1+ MSC,THY1+ MSC
+VSMC,VSMC,MSC,Adipo-MSC
+THY1+ MSC,THY1+ MSC,Endosteal,Endosteal
+Adipo-MSC,Adipo-MSC,Schwann Cells,No Match
+OsteoFibro-MSC,No Match,Adipocyte,No Match
+Osteo-MSC,Osteo-MSC,Osteo_MSC,Osteo-MSC
+Osteoblast,Endosteal,,
+Fibro-MSC,Fibro-MSC,Fibro_MSC,Fibro-MSC
